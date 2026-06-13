@@ -12,17 +12,22 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    /* Font size default dibuat lebih kecil (13px/0.8125rem) */
+    body { font-size: 0.8125rem; }
+
     @media print {
-      body { background: white !important; }
+      body { background: white !important; font-size: 11px !important; }
       .print-hidden, button.print-hidden { display: none !important; }
       input, textarea { 
         border: none !important; 
         outline: none !important; 
         box-shadow: none !important; 
         background: transparent !important;
-        font-size: 11px !important; /* Lebih kecil saat dicetak */
+        font-size: inherit !important;
       }
       input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+      /* Pastikan warna header cetak */
+      thead tr { background-color: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -30,108 +35,109 @@
 
   <!-- Header & Controls -->
   <div class="max-w-5xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4 print-hidden">
-    <h1 class="text-2xl font-bold text-gray-700">Sistem Surat Jalan</h1>
+    <h1 class="text-xl font-bold text-gray-700">Sistem Surat Jalan</h1>
     <div class="flex gap-2 flex-wrap justify-center">
-      <button onclick="toggleConfig()" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm">
-        <i data-lucide="settings" class="w-4 h-4"></i> Konfigurasi
+      <button onclick="toggleConfig()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-xs">
+        <i data-lucide="settings" class="w-3 h-3"></i> Konfigurasi
       </button>
-      <button onclick="handleSubmit()" id="btnSubmit" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm">
-        <i data-lucide="send" class="w-4 h-4"></i> Simpan ke Sheet
+      <button onclick="handleSubmit()" id="btnSubmit" class="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-xs">
+        <i data-lucide="send" class="w-3 h-3"></i> Simpan ke Sheet
       </button>
-      <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition text-sm">
-        <i data-lucide="printer" class="w-4 h-4"></i> Cetak
+      <button onclick="window.print()" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition text-xs">
+        <i data-lucide="printer" class="w-3 h-3"></i> Cetak
       </button>
     </div>
   </div>
 
   <!-- Config Panel -->
-  <div id="configPanel" class="max-w-5xl mx-auto mb-6 bg-white p-6 rounded-xl shadow-md border-l-4 border-yellow-500 hidden print-hidden">
-    <h2 class="text-lg font-semibold mb-2">Konfigurasi Google Spreadsheet</h2>
-    <p class="text-sm text-gray-600 mb-4">Masukkan URL Web App dari Google Apps Script Anda.</p>
+  <div id="configPanel" class="max-w-5xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border-l-4 border-yellow-500 hidden print-hidden">
+    <h2 class="text-sm font-semibold mb-1">Konfigurasi Google Spreadsheet</h2>
+    <p class="text-xs text-gray-600 mb-3">Masukkan URL Web App dari Google Apps Script Anda.</p>
     <div class="flex flex-col sm:flex-row gap-2">
-      <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-      <button onclick="saveConfig()" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 flex items-center justify-center gap-2 text-sm">
-        <i data-lucide="save" class="w-4 h-4"></i> Simpan URL
+      <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 border p-1.5 rounded focus:ring-2 focus:ring-blue-500 outline-none text-xs">
+      <button onclick="saveConfig()" class="bg-gray-800 text-white px-3 py-1.5 rounded hover:bg-gray-900 flex items-center justify-center gap-1 text-xs">
+        <i data-lucide="save" class="w-3 h-3"></i> Simpan URL
       </button>
     </div>
   </div>
 
   <!-- Main Document -->
-  <div class="max-w-5xl mx-auto bg-white p-8 md:p-12 shadow-lg">
+  <div class="max-w-5xl mx-auto bg-white p-6 md:p-10 shadow-lg">
     
     <!-- Doc Header -->
-    <div class="border-b-2 border-gray-800 pb-4 mb-6 flex justify-between items-start">
+    <div class="border-b-2 border-gray-800 pb-3 mb-4 flex justify-between items-start">
       <div>
-        <h1 class="text-3xl font-bold uppercase tracking-wider text-gray-900">SURAT JALAN</h1>
-        <p class="text-gray-600 mt-1 text-sm">Dokumen Pengiriman Barang</p>
+        <h1 class="text-2xl font-bold uppercase tracking-wider text-gray-900">SURAT JALAN</h1>
+        <p class="text-gray-600 mt-0.5 text-xs">Dokumen Pengiriman Barang</p>
       </div>
       <div class="text-right flex flex-col items-end">
-        <h2 class="text-4xl font-black text-[#E3000F] tracking-tighter mb-2" style="font-family: Arial, sans-serif;">POLYTRON</h2>
-        <p class="text-xs text-gray-600">Jl. Contoh Alamat Perusahaan No. 123</p>
-        <p class="text-xs text-gray-600">Telp: (021) 1234567 | Email: info@perusahaan.com</p>
+        <h2 class="text-3xl font-black text-[#E3000F] tracking-tighter mb-1" style="font-family: Arial, sans-serif;">POLYTRON</h2>
+        <p class="text-[0.65rem] text-gray-600">Jl. Contoh Alamat Perusahaan No. 123</p>
+        <p class="text-[0.65rem] text-gray-600">Telp: (021) 1234567 | Email: info@perusahaan.com</p>
       </div>
     </div>
 
-    <!-- Info Section (Font diperkecil) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 text-sm">
+    <!-- Info Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 text-xs">
       <div class="space-y-2">
         <div class="flex">
-          <span class="w-32 font-semibold">No. Surat Jalan</span><span class="mr-2">:</span>
-          <input type="text" id="noSurat" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none text-sm py-0.5">
+          <span class="w-28 font-semibold">No. Surat Jalan</span><span class="mr-2">:</span>
+          <input type="text" id="noSurat" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none py-0.5">
         </div>
         <div class="flex">
-          <span class="w-32 font-semibold">Tanggal</span><span class="mr-2">:</span>
-          <input type="date" id="tanggal" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none text-sm py-0.5">
+          <span class="w-28 font-semibold">Tanggal</span><span class="mr-2">:</span>
+          <input type="date" id="tanggal" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none py-0.5">
         </div>
         <div class="flex">
-          <span class="w-32 font-semibold">Kendaraan</span><span class="mr-2">:</span>
-          <input type="text" id="kendaraan" placeholder="Misal: Truk Box B 1234 XYZ" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none text-sm py-0.5">
+          <span class="w-28 font-semibold">Kendaraan</span><span class="mr-2">:</span>
+          <input type="text" id="kendaraan" placeholder="Misal: Truk Box B 1234 XYZ" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none py-0.5">
         </div>
       </div>
       <div class="space-y-2">
         <div class="flex">
-          <span class="w-32 font-semibold">Kepada Yth.</span><span class="mr-2">:</span>
-          <input type="text" id="penerima" placeholder="Nama Penerima / Instansi" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none font-bold text-sm py-0.5">
+          <span class="w-28 font-semibold">Kepada Yth.</span><span class="mr-2">:</span>
+          <input type="text" id="penerima" placeholder="Nama Penerima / Instansi" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none py-0.5 font-bold">
         </div>
         <div class="flex items-start">
-          <span class="w-32 font-semibold mt-1">Alamat Tujuan</span><span class="mr-2 mt-1">:</span>
-          <textarea id="alamatPenerima" rows="2" placeholder="Alamat lengkap pengiriman" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none resize-none text-sm py-0.5"></textarea>
+          <span class="w-28 font-semibold mt-1">Alamat Tujuan</span><span class="mr-2 mt-1">:</span>
+          <textarea id="alamatPenerima" rows="2" placeholder="Alamat lengkap pengiriman" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none resize-none py-0.5"></textarea>
         </div>
       </div>
     </div>
 
-    <!-- Items Table (Auto-fit & Font Kecil) -->
-    <div class="mb-8 overflow-x-auto">
-      <table class="w-full text-left border-collapse border-2 border-black text-xs" id="itemsTable">
+    <!-- Items Table -->
+    <div class="mb-6 overflow-x-auto text-xs">
+      <!-- table-auto memungkinkan kolom menyesuaikan teks, whitespace-normal membungkus teks panjang -->
+      <table class="w-full text-left border-collapse border-2 border-black table-auto" id="itemsTable">
         <thead>
           <tr class="bg-red-600 text-white" style="print-color-adjust: exact; -webkit-print-color-adjust: exact;">
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">NO</th>
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">SPAREPART BEKAS</th>
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">QTY</th>
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">UKURAN</th>
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">M³</th>
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">COLLY</th>
-            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-nowrap">KETERANGAN</th>
-            <th class="p-1.5 text-center border border-black font-bold print-hidden whitespace-nowrap">Aksi</th>
+            <th class="p-1.5 w-8 text-center border border-black font-bold uppercase">NO</th>
+            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-normal">SPAREPART BEKAS</th>
+            <th class="p-1.5 w-12 text-center border border-black font-bold uppercase whitespace-normal">QTY</th>
+            <th class="p-1.5 w-20 text-center border border-black font-bold uppercase whitespace-normal">UKURAN (PxLxT)</th>
+            <th class="p-1.5 w-16 text-center border border-black font-bold uppercase whitespace-normal">M³</th>
+            <th class="p-1.5 w-14 text-center border border-black font-bold uppercase whitespace-normal">COLLY</th>
+            <th class="p-1.5 text-center border border-black font-bold uppercase whitespace-normal">KETERANGAN</th>
+            <th class="p-1.5 w-8 text-center border border-black font-bold print-hidden">Aksi</th>
           </tr>
         </thead>
         <tbody id="itemRows">
           <!-- Baris akan digenerate via JS -->
         </tbody>
       </table>
-      <button onclick="addItem()" class="mt-4 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium print-hidden">
+      <button onclick="addItem()" class="mt-2 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium print-hidden">
         <i data-lucide="plus" class="w-3 h-3"></i> Tambah Baris Barang
       </button>
     </div>
 
-    <div class="mb-12">
-      <p class="text-xs text-gray-600 italic">* Mohon periksa kembali barang yang diterima. Barang yang sudah diterima dalam kondisi baik tidak dapat dikembalikan.</p>
+    <div class="mb-10">
+      <p class="text-[0.65rem] text-gray-600 italic">* Mohon periksa kembali barang yang diterima. Barang yang sudah diterima dalam kondisi baik tidak dapat dikembalikan.</p>
     </div>
 
-    <div class="grid grid-cols-3 gap-4 text-center mt-8 text-xs">
-      <div><p class="mb-16 font-semibold">Penerima,</p><div class="w-48 border-b border-gray-800 mx-auto"></div><p class="text-xs mt-1 text-gray-500">(Nama Jelas & Stempel)</p></div>
-      <div><p class="mb-16 font-semibold">Pengemudi,</p><div class="w-48 border-b border-gray-800 mx-auto"></div><p class="text-xs mt-1 text-gray-500">(Nama Jelas)</p></div>
-      <div><p class="mb-16 font-semibold">Hormat Kami,</p><div class="w-48 border-b border-gray-800 mx-auto"></div><p class="text-xs mt-1 text-gray-500">(Bagian Pengiriman)</p></div>
+    <div class="grid grid-cols-3 gap-4 text-center mt-6 text-xs">
+      <div><p class="mb-12 font-semibold">Penerima,</p><div class="w-40 border-b border-gray-800 mx-auto"></div><p class="text-[0.65rem] mt-1 text-gray-500">(Nama Jelas & Stempel)</p></div>
+      <div><p class="mb-12 font-semibold">Pengemudi,</p><div class="w-40 border-b border-gray-800 mx-auto"></div><p class="text-[0.65rem] mt-1 text-gray-500">(Nama Jelas)</p></div>
+      <div><p class="mb-12 font-semibold">Hormat Kami,</p><div class="w-40 border-b border-gray-800 mx-auto"></div><p class="text-[0.65rem] mt-1 text-gray-500">(Bagian Pengiriman)</p></div>
     </div>
   </div>
 
@@ -190,23 +196,23 @@
         }
         return item;
       });
-      renderTable();
+      // Jangan re-render seluruh tabel saat mengetik agar kursor tidak melompat
+      // cukup perbarui objeknya
     }
 
     function renderTable() {
       const tbody = document.getElementById('itemRows');
-      // Tambahkan whitespace-nowrap pada input agar sel menyesuaikan teks
       tbody.innerHTML = items.map((item, index) => `
         <tr class="border-b border-black text-blue-800">
-          <td class="p-1 text-center border border-black font-medium whitespace-nowrap">${index + 1}</td>
-          <td class="p-1 border border-black"><input type="text" value="${item.sparepart}" onchange="handleItemChange(${item.id}, 'sparepart', this.value)" class="w-full bg-transparent outline-none px-1 font-medium text-xs whitespace-nowrap"></td>
-          <td class="p-1 border border-black"><input type="number" value="${item.qty}" min="1" onchange="handleItemChange(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none px-1 text-center text-xs whitespace-nowrap"></td>
-          <td class="p-1 border border-black"><input type="text" value="${item.dimensi}" onchange="handleItemChange(${item.id}, 'dimensi', this.value)" placeholder="PxLxT" class="w-full bg-transparent outline-none px-1 text-center text-xs whitespace-nowrap"></td>
-          <td class="p-1 border border-black"><input type="text" value="${item.volume}" readonly class="w-full bg-transparent outline-none px-1 text-center bg-gray-50 text-xs whitespace-nowrap"></td>
-          <td class="p-1 border border-black"><input type="number" value="${item.colly}" min="0" onchange="handleItemChange(${item.id}, 'colly', this.value)" class="w-full bg-transparent outline-none px-1 text-center text-xs whitespace-nowrap"></td>
-          <td class="p-1 border border-black"><input type="text" value="${item.keterangan}" onchange="handleItemChange(${item.id}, 'keterangan', this.value)" class="w-full bg-transparent outline-none px-1 text-xs whitespace-nowrap"></td>
-          <td class="p-1 text-center border border-black print-hidden whitespace-nowrap">
-            <button onclick="removeItem(${item.id})" class="text-red-500 hover:text-red-700 font-bold text-sm">&times;</button>
+          <td class="p-1 text-center border border-black font-medium">${index + 1}</td>
+          <td class="p-0.5 border border-black"><input type="text" value="${item.sparepart}" oninput="handleItemChange(${item.id}, 'sparepart', this.value)" class="w-full bg-transparent outline-none px-1 font-medium py-0.5"></td>
+          <td class="p-0.5 border border-black"><input type="number" value="${item.qty}" min="1" oninput="handleItemChange(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none px-1 text-center py-0.5"></td>
+          <td class="p-0.5 border border-black"><input type="text" value="${item.dimensi}" oninput="handleItemChange(${item.id}, 'dimensi', this.value)" placeholder="PxLxT" class="w-full bg-transparent outline-none px-1 text-center py-0.5"></td>
+          <td class="p-0.5 border border-black"><input type="text" value="${item.volume}" readonly class="w-full bg-transparent outline-none px-1 text-center bg-gray-50 py-0.5 cursor-not-allowed"></td>
+          <td class="p-0.5 border border-black"><input type="number" value="${item.colly}" min="0" oninput="handleItemChange(${item.id}, 'colly', this.value)" class="w-full bg-transparent outline-none px-1 text-center py-0.5"></td>
+          <td class="p-0.5 border border-black"><input type="text" value="${item.keterangan}" oninput="handleItemChange(${item.id}, 'keterangan', this.value)" class="w-full bg-transparent outline-none px-1 py-0.5"></td>
+          <td class="p-0.5 text-center border border-black print-hidden">
+            <button onclick="removeItem(${item.id})" class="text-red-500 hover:text-red-700 font-bold text-sm leading-none">&times;</button>
           </td>
         </tr>
       `).join('');
@@ -258,12 +264,12 @@
 
       const btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...`;
+      btnSubmit.innerHTML = `<svg class="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Menyimpan...`;
 
       try {
         const response = await fetch(webAppUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
 
@@ -279,7 +285,7 @@
         alert('Gagal menyimpan data. Pastikan URL Web App benar dan deployment sudah benar.\nPesan Error: ' + error.message);
       } finally {
         btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Simpan ke Sheet`;
+        btnSubmit.innerHTML = `<i data-lucide="send" class="w-3 h-3"></i> Simpan ke Sheet`;
         lucide.createIcons();
       }
     }
