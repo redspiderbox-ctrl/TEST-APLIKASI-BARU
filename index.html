@@ -9,361 +9,74 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d0f0e;
-            --bg2: #141816;
-            --card: #1a1e1c;
-            --card-hover: #222826;
-            --border: #2a302d;
-            --fg: #e8ece9;
-            --muted: #7a8580;
-            --accent: #e8a830;
-            --accent2: #f0c050;
-            --danger: #e05050;
-            --success: #40c870;
+            --bg: #0d0f0e; --bg2: #141816; --card: #1a1e1c; --card-hover: #222826;
+            --border: #2a302d; --fg: #e8ece9; --muted: #7a8580;
+            --accent: #e8a830; --accent2: #f0c050;
+            --danger: #e05050; --success: #40c870;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--fg);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--fg); min-height: 100vh; overflow-x: hidden; }
         h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
 
-        /* Animated background */
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background-image:
-                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,168,48,0.06) 0%, transparent 60%),
-                radial-gradient(circle at 20% 80%, rgba(232,168,48,0.03) 0%, transparent 40%);
-            pointer-events: none;
-        }
-
-        .bg-dots {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background-image: radial-gradient(circle, rgba(232,168,48,0.07) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-        }
-
+        .bg-grid { position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,168,48,0.06) 0%, transparent 60%); pointer-events: none; }
+        .bg-dots { position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(232,168,48,0.07) 1px, transparent 1px); background-size: 32px 32px; pointer-events: none; }
         .content-wrap { position: relative; z-index: 1; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg2); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg2); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-        /* Upload zone */
-        .upload-zone {
-            border: 2px dashed var(--border);
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(26,30,28,0.5);
-            position: relative;
-            overflow: hidden;
-        }
-        .upload-zone::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(232,168,48,0.05), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .upload-zone:hover, .upload-zone.drag-over {
-            border-color: var(--accent);
-            background: rgba(232,168,48,0.04);
-        }
-        .upload-zone:hover::before, .upload-zone.drag-over::before { opacity: 1; }
+        .upload-zone { border: 2px dashed var(--border); border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: rgba(26,30,28,0.5); position: relative; }
+        .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: rgba(232,168,48,0.04); }
 
-        /* File cards */
-        .file-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-        .file-card:hover {
-            background: var(--card-hover);
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(232,168,48,0.1);
-        }
+        .file-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.3s ease; cursor: pointer; }
+        .file-card:hover { background: var(--card-hover); border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
 
-        .file-thumb {
-            width: 100%;
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg2);
-            position: relative;
-            overflow: hidden;
-        }
-        .file-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .file-thumb .pdf-icon {
-            font-size: 48px;
-            color: var(--danger);
-        }
+        .file-thumb { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--bg2); overflow: hidden; }
+        .file-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .file-thumb .pdf-icon { font-size: 48px; color: var(--danger); }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.25s ease;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 16px; max-width: 900px; width: 100%; max-height: 90vh; overflow: auto; animation: slideUp 0.3s ease; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .modal-content {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        /* Toast */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .toast {
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
         .toast.success { background: #1a3a28; border: 1px solid var(--success); color: var(--success); }
         .toast.error { background: #3a1a1a; border: 1px solid var(--danger); color: var(--danger); }
         .toast.info { background: #2a2818; border: 1px solid var(--accent); color: var(--accent); }
 
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        /* Buttons */
-        .btn-primary {
-            background: var(--accent);
-            color: var(--bg);
-            font-weight: 600;
-            padding: 10px 24px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            font-family: 'DM Sans', sans-serif;
-        }
-        .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--muted);
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-            font-family: 'DM Sans', sans-serif;
-        }
+        .btn-primary { background: var(--accent); color: var(--bg); font-weight: 600; padding: 10px 24px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        .btn-primary:hover { background: var(--accent2); }
+        .btn-ghost { background: transparent; color: var(--muted); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 13px; font-family: 'DM Sans'; }
         .btn-ghost:hover { color: var(--fg); border-color: var(--muted); }
-
-        .btn-danger {
-            background: rgba(224,80,80,0.1);
-            color: var(--danger);
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid rgba(224,80,80,0.3);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-            font-family: 'DM Sans', sans-serif;
-        }
+        .btn-danger { background: rgba(224,80,80,0.1); color: var(--danger); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(224,80,80,0.3); cursor: pointer; font-size: 13px; font-family: 'DM Sans'; }
         .btn-danger:hover { background: rgba(224,80,80,0.2); }
 
-        /* Progress bar */
-        .progress-bar {
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 12px;
-            display: none;
-        }
+        .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 12px; display: none; }
         .progress-bar.active { display: block; }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 2px;
-            transition: width 0.3s;
-            width: 0%;
-        }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; width: 0%; transition: width 0.3s; }
 
-        /* Search */
-        .search-input {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 16px 10px 40px;
-            color: var(--fg);
-            font-size: 14px;
-            width: 100%;
-            max-width: 400px;
-            transition: border-color 0.2s;
-            font-family: 'DM Sans', sans-serif;
-            outline: none;
-        }
+        .search-input { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px 10px 40px; color: var(--fg); font-size: 14px; width: 100%; max-width: 400px; outline: none; font-family: 'DM Sans'; }
         .search-input:focus { border-color: var(--accent); }
-        .search-input::placeholder { color: var(--muted); }
 
-        /* Filter tabs */
-        .filter-tab {
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-            background: transparent;
-            color: var(--muted);
-            font-family: 'DM Sans', sans-serif;
-        }
+        .filter-tab { padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; background: transparent; color: var(--muted); font-family: 'DM Sans'; }
         .filter-tab:hover { color: var(--fg); }
-        .filter-tab.active {
-            background: rgba(232,168,48,0.1);
-            color: var(--accent);
-            border-color: rgba(232,168,48,0.3);
-        }
+        .filter-tab.active { background: rgba(232,168,48,0.1); color: var(--accent); border-color: rgba(232,168,48,0.3); }
 
-        /* Stat card */
-        .stat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.2s;
-        }
-        .stat-card:hover { border-color: rgba(232,168,48,0.3); }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s; }
+        .pulse-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(64,200,112,0.4); } 50% { box-shadow: 0 0 0 6px rgba(64,200,112,0); } }
 
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: var(--muted);
-        }
-
-        /* PDF viewer */
-        .pdf-viewer {
-            width: 100%;
-            height: 70vh;
-            border: none;
-            border-radius: 8px;
-            background: #1a1a1a;
-        }
-
-        /* Floating particles */
-        .particle {
-            position: fixed;
-            width: 3px;
-            height: 3px;
-            background: var(--accent);
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0.2;
-            z-index: 0;
-            animation: float linear infinite;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.2; }
-            90% { opacity: 0.2; }
-            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* Pulse dot */
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(64,200,112,0.4); }
-            50% { box-shadow: 0 0 0 6px rgba(64,200,112,0); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .file-thumb { height: 140px; }
-            .modal-content { max-height: 95vh; }
-        }
+        @media (max-width: 768px) { .file-thumb { height: 140px; } }
     </style>
 </head>
 <body>
     <div class="bg-grid"></div>
     <div class="bg-dots"></div>
-    <div id="particles"></div>
 
     <div class="content-wrap">
-        <!-- Header -->
         <header style="background: rgba(13,15,14,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50;">
             <div style="max-width: 1280px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
@@ -371,8 +84,8 @@
                         <i class="fas fa-vault" style="color: var(--bg); font-size: 18px;"></i>
                     </div>
                     <div>
-                        <h1 style="font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">FileVault</h1>
-                        <p style="font-size: 11px; color: var(--muted); margin-top: 1px;">GitHub + Spreadsheet Storage</p>
+                        <h1 style="font-size: 20px; font-weight: 700;">FileVault</h1>
+                        <p style="font-size: 11px; color: var(--muted);">GitHub + Spreadsheet Storage</p>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
@@ -388,28 +101,28 @@
                 <div class="stat-card">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <i class="fas fa-file-pdf" style="color: var(--danger); font-size: 18px;"></i>
-                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">PDF</span>
+                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase;">PDF</span>
                     </div>
                     <p style="font-size: 28px; font-weight: 700; font-family: 'Space Grotesk';" id="statPdf">0</p>
                 </div>
                 <div class="stat-card">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <i class="fas fa-image" style="color: var(--accent); font-size: 18px;"></i>
-                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">JPEG</span>
+                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase;">JPEG</span>
                     </div>
                     <p style="font-size: 28px; font-weight: 700; font-family: 'Space Grotesk';" id="statJpeg">0</p>
                 </div>
                 <div class="stat-card">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <i class="fas fa-hard-drive" style="color: var(--success); font-size: 18px;"></i>
-                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Total</span>
+                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase;">Total</span>
                     </div>
                     <p style="font-size: 28px; font-weight: 700; font-family: 'Space Grotesk';" id="statTotal">0</p>
                 </div>
                 <div class="stat-card">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <i class="fas fa-database" style="color: #60a0e0; font-size: 18px;"></i>
-                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Storage</span>
+                        <span style="font-size: 12px; color: var(--muted); text-transform: uppercase;">Storage</span>
                     </div>
                     <p style="font-size: 28px; font-weight: 700; font-family: 'Space Grotesk';" id="statSize">0 KB</p>
                 </div>
@@ -417,8 +130,8 @@
 
             <!-- Upload Zone -->
             <section style="margin-bottom: 32px;">
-                <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload file PDF atau JPEG">
-                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple style="display:none;">
+                <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload file">
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,image/jpeg,application/pdf" multiple style="display:none;">
                     <i class="fas fa-cloud-arrow-up" style="font-size: 40px; color: var(--accent); margin-bottom: 12px; display: block;"></i>
                     <p style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Seret file ke sini atau klik untuk upload</p>
                     <p style="font-size: 13px; color: var(--muted);">Mendukung format PDF & JPEG (maks. 10 MB per file)</p>
@@ -431,13 +144,9 @@
             <!-- Filter & Search -->
             <section style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
                 <div style="display: flex; gap: 8px;">
-                    <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">Semua</button>
-                    <button class="filter-tab" data-filter="pdf" onclick="setFilter('pdf', this)">
-                        <i class="fas fa-file-pdf" style="margin-right: 4px;"></i>PDF
-                    </button>
-                    <button class="filter-tab" data-filter="jpeg" onclick="setFilter('jpeg', this)">
-                        <i class="fas fa-image" style="margin-right: 4px;"></i>JPEG
-                    </button>
+                    <button class="filter-tab active" onclick="setFilter('all', this)">Semua</button>
+                    <button class="filter-tab" onclick="setFilter('pdf', this)"><i class="fas fa-file-pdf" style="margin-right: 4px;"></i>PDF</button>
+                    <button class="filter-tab" onclick="setFilter('jpeg', this)"><i class="fas fa-image" style="margin-right: 4px;"></i>JPEG</button>
                 </div>
                 <div style="position: relative;">
                     <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px;"></i>
@@ -446,85 +155,50 @@
             </section>
 
             <!-- File Grid -->
-            <section id="fileGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 60px;">
-            </section>
-
-            <!-- Empty State -->
-            <div class="empty-state" id="emptyState" style="display:none;">
+            <section id="fileGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 60px;"></section>
+            
+            <div class="empty-state" id="emptyState" style="display:none; text-align: center; padding: 80px 20px; color: var(--muted);">
                 <i class="fas fa-folder-open" style="font-size: 56px; color: var(--border); margin-bottom: 16px;"></i>
                 <p style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">Belum ada file</p>
                 <p style="font-size: 14px;">Upload file PDF atau JPEG untuk memulai</p>
             </div>
         </main>
-
-        <!-- Footer -->
-        <footer style="border-top: 1px solid var(--border); padding: 20px; text-align: center;">
-            <p style="font-size: 12px; color: var(--muted);">FileVault — Penyimpanan file dengan GitHub & Google Spreadsheet</p>
-        </footer>
     </div>
 
     <!-- Preview Modal -->
-    <div class="modal-overlay" id="previewModal" role="dialog" aria-modal="true">
+    <div class="modal-overlay" id="previewModal" role="dialog">
         <div class="modal-content">
-            <div style="padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border);">
-                <div>
-                    <h3 style="font-size: 16px; font-weight: 600;" id="previewTitle">Nama File</h3>
+            <div style="padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px;">
+                <div style="flex: 1; min-width: 150px;">
+                    <h3 style="font-size: 16px; font-weight: 600; word-break: break-all;" id="previewTitle">Nama File</h3>
                     <p style="font-size: 12px; color: var(--muted); margin-top: 2px;" id="previewMeta">info</p>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <a id="previewDownload" href="#" download style="text-decoration:none;">
-                        <button class="btn-ghost"><i class="fas fa-download" style="margin-right: 4px;"></i>Download</button>
-                    </a>
+                    <a id="previewDownload" href="#" download style="text-decoration:none;"><button class="btn-ghost"><i class="fas fa-download" style="margin-right: 4px;"></i>Download</button></a>
                     <button class="btn-danger" onclick="deleteCurrentFile()"><i class="fas fa-trash" style="margin-right: 4px;"></i>Hapus</button>
                     <button class="btn-ghost" onclick="closePreview()" aria-label="Tutup"><i class="fas fa-xmark"></i></button>
                 </div>
             </div>
-            <div style="padding: 20px;" id="previewBody">
-                <!-- Isi preview -->
-            </div>
+            <div style="padding: 20px;" id="previewBody"></div>
         </div>
     </div>
 
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
         // ============================================================
-        // KONFIGURASI — Ganti dengan data Anda
+        // KONFIGURASI — Ganti dengan URL Web App Google Apps Script Anda
         // ============================================================
         const CONFIG = {
-            // URL deploy Google Apps Script (setelah deploy)
-            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxaEspdmZhobnANy37vBVbfTMDbvs1BbEAMWBPxKJKXagmg7_ecGeg5k9VJ2KRSez-o/exec',
+            SCRIPT_URL: 'MASUKKAN_URL_WEB_APP_ANDA_DI_SINI',
         };
 
-        // ============================================================
-        // STATE
-        // ============================================================
         let allFiles = [];
         let currentFilter = 'all';
         let currentSearch = '';
         let currentPreviewId = null;
 
-        // ============================================================
-        // PARTIKEL LATAR
-        // ============================================================
-        (function initParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 15; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = Math.random() * 100 + '%';
-                p.style.animationDuration = (8 + Math.random() * 12) + 's';
-                p.style.animationDelay = Math.random() * 8 + 's';
-                p.style.width = (2 + Math.random() * 3) + 'px';
-                p.style.height = p.style.width;
-                container.appendChild(p);
-            }
-        })();
-
-        // ============================================================
-        // TOAST NOTIFICATION
-        // ============================================================
+        // Toast
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -532,40 +206,23 @@
             const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
             toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => { if(toast.parentNode) toast.remove(); }, 4000);
         }
 
-        // ============================================================
-        // UPLOAD ZONE
-        // ============================================================
+        // Upload Zone Listeners
         const uploadZone = document.getElementById('uploadZone');
         const fileInput = document.getElementById('fileInput');
 
         uploadZone.addEventListener('click', () => fileInput.click());
         uploadZone.addEventListener('keydown', (e) => { if (e.key === 'Enter') fileInput.click(); });
-
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('drag-over');
-        });
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
         uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('drag-over');
-            handleFiles(e.dataTransfer.files);
-        });
+        uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+        fileInput.addEventListener('change', () => { handleFiles(fileInput.files); fileInput.value = ''; });
 
-        fileInput.addEventListener('change', () => {
-            handleFiles(fileInput.files);
-            fileInput.value = '';
-        });
-
-        // ============================================================
-        // HANDLE FILES — Upload ke GitHub via GAS
-        // ============================================================
         async function handleFiles(fileList) {
             if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL === 'MASUKKAN_URL_WEB_APP_ANDA_DI_SINI') {
-                showToast('Silakan atur CONFIG.SCRIPT_URL terlebih dahulu', 'error');
+                showToast('ERROR: Silakan isi CONFIG.SCRIPT_URL di dalam kode index.html terlebih dahulu!', 'error');
                 return;
             }
 
@@ -573,13 +230,14 @@
             const validFiles = files.filter(f => {
                 const ext = f.name.toLowerCase().split('.').pop();
                 const isValid = ['pdf', 'jpg', 'jpeg'].includes(ext);
-                if (!isValid) showToast(`${f.name}: Format tidak didukung`, 'error');
+                if (!isValid) showToast(`${f.name}: Format tidak didukung (hanya PDF/JPG)`, 'error');
                 if (f.size > 10 * 1024 * 1024) showToast(`${f.name}: File terlalu besar (maks 10MB)`, 'error');
                 return isValid && f.size <= 10 * 1024 * 1024;
             });
 
             if (validFiles.length === 0) return;
-
+            
+            // Upload satu per satu
             for (const file of validFiles) {
                 await uploadFile(file);
             }
@@ -592,15 +250,14 @@
             progressFill.style.width = '10%';
 
             try {
-                // Konversi file ke base64
+                // Konversi ke Base64
                 const base64 = await fileToBase64(file);
                 progressFill.style.width = '40%';
 
-                // Kirim ke Google Apps Script
                 const payload = {
                     action: 'upload',
                     fileName: file.name,
-                    mimeType: file.type,
+                    mimeType: file.type || 'application/octet-stream',
                     base64Data: base64,
                     fileSize: file.size
                 };
@@ -612,14 +269,17 @@
                     body: JSON.stringify(payload)
                 });
 
-                progressFill.style.width = '90%';
+                progressFill.style.width = '80%';
+
+                if (!response.ok) {
+                    throw new Error(`Server merespon dengan status ${response.status}`);
+                }
 
                 const result = await response.json();
 
                 if (result.success) {
                     showToast(`${file.name} berhasil diupload!`, 'success');
                     progressFill.style.width = '100%';
-                    // Tambahkan ke list lokal
                     allFiles.unshift({
                         id: result.id,
                         name: result.fileName,
@@ -632,15 +292,13 @@
                     renderFiles();
                     updateStats();
                 } else {
-                    throw new Error(result.error || 'Upload gagal');
+                    throw new Error(result.error || 'Gagal upload dari sisi server');
                 }
             } catch (err) {
+                console.error('Upload Error:', err);
                 showToast(`Gagal upload ${file.name}: ${err.message}`, 'error');
             } finally {
-                setTimeout(() => {
-                    progressBar.classList.remove('active');
-                    progressFill.style.width = '0%';
-                }, 800);
+                setTimeout(() => { progressBar.classList.remove('active'); progressFill.style.width = '0%'; }, 1000);
             }
         }
 
@@ -648,137 +306,77 @@
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    // Hapus prefix "data:xxx;base64,"
                     const base64 = reader.result.split(',')[1];
-                    resolve(base64);
+                    if (!base64) {
+                        reject(new Error('Gagal membaca file base64'));
+                    } else {
+                        resolve(base64);
+                    }
                 };
-                reader.onerror = reject;
+                reader.onerror = () => reject(new Error('Gagal membaca file'));
                 reader.readAsDataURL(file);
             });
         }
 
-        // ============================================================
-        // LOAD FILES dari Spreadsheet via GAS
-        // ============================================================
+        // Load Files
         async function loadFiles() {
             if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL === 'MASUKKAN_URL_WEB_APP_ANDA_DI_SINI') {
-                // Mode demo: tampilkan data contoh
                 loadDemoData();
                 return;
             }
 
             try {
                 const response = await fetch(CONFIG.SCRIPT_URL + '?action=list');
+                if (!response.ok) throw new Error('Gagal menghubungi server');
                 const result = await response.json();
 
                 if (result.success) {
                     allFiles = result.files;
-                    renderFiles();
-                    updateStats();
+                    document.getElementById('connectionStatus').textContent = 'Terhubung ke Server';
                 } else {
-                    throw new Error(result.error || 'Gagal memuat file');
+                    throw new Error(result.error);
                 }
             } catch (err) {
                 showToast('Tidak dapat terhubung ke server. Menampilkan data demo.', 'info');
+                document.getElementById('connectionStatus').textContent = 'Mode Demo';
                 loadDemoData();
             }
-        }
-
-        // Data demo untuk preview tanpa koneksi
-        function loadDemoData() {
-            allFiles = [
-                {
-                    id: 'demo1',
-                    name: 'Laporan_Keuangan_2024.pdf',
-                    type: 'pdf',
-                    size: 2450000,
-                    url: '#',
-                    thumbnailUrl: '#',
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 'demo2',
-                    name: 'Foto_Produk_A.jpg',
-                    type: 'jpeg',
-                    size: 890000,
-                    url: 'https://picsum.photos/seed/vault1/600/400.jpg',
-                    thumbnailUrl: 'https://picsum.photos/seed/vault1/400/300.jpg',
-                    timestamp: new Date(Date.now() - 86400000).toISOString()
-                },
-                {
-                    id: 'demo3',
-                    name: 'Sertifikat_Kompetensi.pdf',
-                    type: 'pdf',
-                    size: 1200000,
-                    url: '#',
-                    thumbnailUrl: '#',
-                    timestamp: new Date(Date.now() - 172800000).toISOString()
-                },
-                {
-                    id: 'demo4',
-                    name: 'Desain_Banner_Promosi.jpg',
-                    type: 'jpeg',
-                    size: 3100000,
-                    url: 'https://picsum.photos/seed/vault2/600/400.jpg',
-                    thumbnailUrl: 'https://picsum.photos/seed/vault2/400/300.jpg',
-                    timestamp: new Date(Date.now() - 259200000).toISOString()
-                },
-                {
-                    id: 'demo5',
-                    name: 'Foto_Tim_Kerja.jpg',
-                    type: 'jpeg',
-                    size: 1750000,
-                    url: 'https://picsum.photos/seed/vault3/600/400.jpg',
-                    thumbnailUrl: 'https://picsum.photos/seed/vault3/400/300.jpg',
-                    timestamp: new Date(Date.now() - 345600000).toISOString()
-                },
-                {
-                    id: 'demo6',
-                    name: 'Proposal_Projek_Akhir.pdf',
-                    type: 'pdf',
-                    size: 4500000,
-                    url: '#',
-                    thumbnailUrl: '#',
-                    timestamp: new Date(Date.now() - 432000000).toISOString()
-                }
-            ];
             renderFiles();
             updateStats();
         }
 
-        // ============================================================
-        // RENDER FILE GRID
-        // ============================================================
+        function loadDemoData() {
+            allFiles = [
+                { id: 'demo1', name: 'Laporan_Keuangan_2024.pdf', type: 'pdf', size: 2450000, url: '#', thumbnailUrl: '#', timestamp: new Date().toISOString() },
+                { id: 'demo2', name: 'Foto_Produk_A.jpg', type: 'jpeg', size: 890000, url: 'https://picsum.photos/seed/v1/600/400.jpg', thumbnailUrl: 'https://picsum.photos/seed/v1/400/300.jpg', timestamp: new Date(Date.now()-86400000).toISOString() },
+                { id: 'demo3', name: 'Sertifikat_Kompetensi.pdf', type: 'pdf', size: 1200000, url: '#', thumbnailUrl: '#', timestamp: new Date(Date.now()-172800000).toISOString() },
+                { id: 'demo4', name: 'Desain_Banner.jpg', type: 'jpeg', size: 3100000, url: 'https://picsum.photos/seed/v2/600/400.jpg', thumbnailUrl: 'https://picsum.photos/seed/v2/400/300.jpg', timestamp: new Date(Date.now()-259200000).toISOString() },
+            ];
+        }
+
+        // Render
         function renderFiles() {
             const grid = document.getElementById('fileGrid');
             const empty = document.getElementById('emptyState');
 
-            // Filter
             let filtered = allFiles;
             if (currentFilter === 'pdf') filtered = filtered.filter(f => f.type === 'pdf');
             if (currentFilter === 'jpeg') filtered = filtered.filter(f => f.type === 'jpeg');
-
-            // Search
             if (currentSearch) {
                 const q = currentSearch.toLowerCase();
                 filtered = filtered.filter(f => f.name.toLowerCase().includes(q));
             }
 
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                empty.style.display = 'block';
-                return;
-            }
-
+            if (filtered.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
             empty.style.display = 'none';
+
             grid.innerHTML = filtered.map(file => {
                 const isJpeg = file.type === 'jpeg';
                 const thumbHtml = isJpeg && file.thumbnailUrl !== '#'
                     ? `<img src="${file.thumbnailUrl}" alt="${file.name}" loading="lazy">`
                     : `<i class="fas ${isJpeg ? 'fa-image' : 'fa-file-pdf'} ${isJpeg ? '' : 'pdf-icon'}" style="font-size: ${isJpeg ? '32px' : '48px'}; color: ${isJpeg ? 'var(--accent)' : 'var(--danger)'};"></i>`;
 
-                const date = new Date(file.timestamp);
-                const dateStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                const dateStr = new Date(file.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                 const sizeStr = formatSize(file.size);
 
                 return `
@@ -794,14 +392,10 @@
                             </div>
                             <p style="font-size: 11px; color: var(--muted); margin-top: 6px;"><i class="fas fa-clock" style="margin-right: 4px;"></i>${dateStr}</p>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
         }
 
-        // ============================================================
-        // FILTER & SEARCH
-        // ============================================================
         function setFilter(filter, el) {
             currentFilter = filter;
             document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -814,9 +408,6 @@
             renderFiles();
         }
 
-        // ============================================================
-        // PREVIEW MODAL
-        // ============================================================
         function openPreview(id) {
             const file = allFiles.find(f => f.id === id);
             if (!file) return;
@@ -832,23 +423,13 @@
             if (isJpeg && file.url !== '#') {
                 body.innerHTML = `<img src="${file.url}" alt="${file.name}" style="width: 100%; border-radius: 8px; max-height: 70vh; object-fit: contain; background: #111;">`;
             } else if (!isJpeg && file.url !== '#') {
-                body.innerHTML = `<iframe src="${file.url}" class="pdf-viewer" title="${file.name}"></iframe>`;
+                body.innerHTML = `<iframe src="${file.url}" style="width:100%; height:70vh; border:none; border-radius:8px; background:#1a1a1a;" title="${file.name}"></iframe>`;
             } else {
-                // Demo mode
-                if (isJpeg) {
-                    body.innerHTML = `
-                        <div style="text-align: center; padding: 40px;">
-                            <img src="${file.thumbnailUrl}" alt="${file.name}" style="max-width: 100%; border-radius: 8px; max-height: 60vh; object-fit: contain;">
-                            <p style="margin-top: 16px; color: var(--muted); font-size: 13px;">Mode demo — Upload file asli untuk preview penuh</p>
-                        </div>`;
-                } else {
-                    body.innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px;">
-                            <i class="fas fa-file-pdf" style="font-size: 80px; color: var(--danger); margin-bottom: 16px;"></i>
-                            <p style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">${file.name}</p>
-                            <p style="color: var(--muted); font-size: 13px;">Mode demo — Hubungkan ke GAS untuk preview PDF penuh</p>
-                        </div>`;
-                }
+                body.innerHTML = `<div style="text-align: center; padding: 60px 20px;">
+                    <i class="fas ${isJpeg ? 'fa-image' : 'fa-file-pdf'}" style="font-size: 80px; color: ${isJpeg ? 'var(--accent)' : 'var(--danger)'}; margin-bottom: 16px;"></i>
+                    <p style="font-size: 16px; font-weight: 600;">${file.name}</p>
+                    <p style="color: var(--muted); margin-top: 8px;">Hubungkan ke GAS untuk preview file asli</p>
+                </div>`;
             }
 
             document.getElementById('previewModal').classList.add('active');
@@ -861,30 +442,18 @@
             currentPreviewId = null;
         }
 
-        // Tutup modal dengan klik di luar atau Escape
-        document.getElementById('previewModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('previewModal')) closePreview();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closePreview();
-        });
+        document.getElementById('previewModal').addEventListener('click', (e) => { if (e.target === document.getElementById('previewModal')) closePreview(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePreview(); });
 
-        // ============================================================
-        // DELETE FILE
-        // ============================================================
         async function deleteCurrentFile() {
             if (!currentPreviewId) return;
             const file = allFiles.find(f => f.id === currentPreviewId);
             if (!file) return;
-
             if (!confirm(`Hapus file "${file.name}"?`)) return;
 
             if (!CONFIG.SCRIPT_URL || CONFIG.SCRIPT_URL === 'MASUKKAN_URL_WEB_APP_ANDA_DI_SINI') {
-                // Demo mode
                 allFiles = allFiles.filter(f => f.id !== currentPreviewId);
-                closePreview();
-                renderFiles();
-                updateStats();
+                closePreview(); renderFiles(); updateStats();
                 showToast('File dihapus (mode demo)', 'info');
                 return;
             }
@@ -895,62 +464,31 @@
                     body: JSON.stringify({ action: 'delete', id: currentPreviewId })
                 });
                 const result = await response.json();
-
                 if (result.success) {
                     allFiles = allFiles.filter(f => f.id !== currentPreviewId);
-                    closePreview();
-                    renderFiles();
-                    updateStats();
+                    closePreview(); renderFiles(); updateStats();
                     showToast('File berhasil dihapus', 'success');
-                } else {
-                    throw new Error(result.error || 'Gagal menghapus');
-                }
+                } else { throw new Error(result.error); }
             } catch (err) {
                 showToast(`Gagal menghapus: ${err.message}`, 'error');
             }
         }
 
-        // ============================================================
-        // UPDATE STATS
-        // ============================================================
         function updateStats() {
-            const pdfCount = allFiles.filter(f => f.type === 'pdf').length;
-            const jpegCount = allFiles.filter(f => f.type === 'jpeg').length;
-            const totalSize = allFiles.reduce((sum, f) => sum + f.size, 0);
-
-            animateNumber('statPdf', pdfCount);
-            animateNumber('statJpeg', jpegCount);
-            animateNumber('statTotal', allFiles.length);
-            document.getElementById('statSize').textContent = formatSize(totalSize);
+            document.getElementById('statPdf').textContent = allFiles.filter(f => f.type === 'pdf').length;
+            document.getElementById('statJpeg').textContent = allFiles.filter(f => f.type === 'jpeg').length;
+            document.getElementById('statTotal').textContent = allFiles.length;
+            document.getElementById('statSize').textContent = formatSize(allFiles.reduce((s, f) => s + f.size, 0));
         }
 
-        function animateNumber(id, target) {
-            const el = document.getElementById(id);
-            const current = parseInt(el.textContent) || 0;
-            if (current === target) return;
-
-            const step = target > current ? 1 : -1;
-            let val = current;
-            const interval = setInterval(() => {
-                val += step;
-                el.textContent = val;
-                if (val === target) clearInterval(interval);
-            }, 50);
-        }
-
-        // ============================================================
-        // UTILITY
-        // ============================================================
         function formatSize(bytes) {
-            if (bytes === 0) return '0 KB';
+            if (bytes === 0) return '0 B';
             const units = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return (bytes / Math.pow(1024, i)).toFixed(i > 1 ? 1 : 0) + ' ' + units[i];
         }
 
-        // ============================================================
-        // INIT
-        // ============================================================
+        // Init
         loadFiles();
     </script>
 </body>
