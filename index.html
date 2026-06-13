@@ -3,375 +3,681 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📦 Order Komponen System</title>
+  <title>Order Komponen System</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
+    /* ============================================
+       CSS VARIABLES & THEME
+       ============================================ */
     :root, [data-theme="dark"] {
-      --bg-primary: #060913; 
-      --bg-secondary: #0c1322; 
-      --bg-card: rgba(15, 23, 42, 0.65);
-      --bg-card-solid: #111a2e;
-      --bg-card-hover: rgba(30, 41, 59, 0.7); 
-      --bg-input: rgba(15, 23, 42, 0.8); 
-      --border: rgba(148, 163, 184, 0.1);
-      --border-hover: rgba(148, 163, 184, 0.2);
-      --border-focus: #00f2c3; 
-      --accent: #00f2c3; 
-      --accent-dark: #00b896;
-      --accent-dim: rgba(0, 242, 195, 0.1);
-      --accent-glow: rgba(0, 242, 195, 0.4); 
-      --warning: #ffb547; 
-      --danger: #ff4d4d;
-      --info: #4d9fff; 
-      --success: #00e676; 
-      --text-primary: #ffffff;
-      --text-secondary: #94a3b8; 
-      --text-muted: #5a6a85;
-      --shadow: 0 8px 32px rgba(0,0,0,0.3); 
-      --shadow-glow: 0 0 40px rgba(0, 242, 195, 0.15);
-      --navbar-bg: rgba(6, 9, 19, 0.7); 
-      --table-head-bg: rgba(6, 9, 19, 0.8);
-      --row-hover: rgba(0,242,195,0.04); 
-      --overlay-bg: rgba(0,0,0,0.7);
-      --toast-bg: rgba(15, 23, 42, 0.9); 
-      --modal-bg: rgba(15, 23, 42, 0.95);
-      --spinner-track: rgba(255,255,255,0.1); 
-      --spinner-top: #0b1120;
-      --spinner-accent-track: rgba(0,242,195,0.2); 
-      --radius: 12px; 
-      --radius-lg: 20px;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --bg-primary: #06080f;
+      --bg-secondary: #0c1019;
+      --bg-card: rgba(15, 20, 35, 0.7);
+      --bg-card-solid: #0f1423;
+      --bg-card-hover: rgba(20, 28, 50, 0.8);
+      --bg-input: rgba(8, 12, 24, 0.8);
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --border-focus: #00e4a5;
+      --accent: #00e4a5;
+      --accent-secondary: #00b4d8;
+      --accent-dim: rgba(0, 228, 165, 0.1);
+      --accent-glow: rgba(0, 228, 165, 0.25);
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --info: #38bdf8;
+      --success: #34d399;
+      --purple: #a78bfa;
+      --text-primary: #eef2f7;
+      --text-secondary: #8b9dc3;
+      --text-muted: #4a5e80;
+      --shadow: 0 8px 40px rgba(0,0,0,0.5);
+      --shadow-glow: 0 0 50px rgba(0, 228, 165, 0.06);
+      --glass: rgba(15, 20, 35, 0.55);
+      --glass-border: rgba(255,255,255,0.08);
+      --navbar-bg: rgba(6, 8, 15, 0.8);
+      --table-head-bg: rgba(0,0,0,0.35);
+      --row-hover: rgba(0, 228, 165, 0.03);
+      --toast-bg: rgba(15, 20, 35, 0.95);
+      --radius: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
     }
     [data-theme="light"] {
-      --bg-primary: #f4f7fb; 
-      --bg-secondary: #e2e8f0; 
-      --bg-card: rgba(255, 255, 255, 0.8);
+      --bg-primary: #f4f7fb;
+      --bg-secondary: #e8ecf4;
+      --bg-card: rgba(255,255,255,0.85);
       --bg-card-solid: #ffffff;
-      --bg-card-hover: rgba(248, 250, 252, 0.9); 
-      --bg-input: rgba(241, 245, 249, 0.9); 
-      --border: rgba(203, 213, 225, 0.6);
-      --border-hover: rgba(148, 163, 184, 0.8);
-      --border-focus: #0d9488; 
-      --accent: #0d9488; 
-      --accent-dark: #0a7a70;
-      --accent-dim: rgba(13, 148, 136, 0.1);
-      --accent-glow: rgba(13, 148, 136, 0.2); 
-      --warning: #d97706; 
-      --danger: #dc2626;
-      --info: #2563eb; 
-      --success: #059669; 
-      --text-primary: #0f172a;
-      --text-secondary: #475569; 
+      --bg-card-hover: rgba(240,244,250,0.9);
+      --bg-input: rgba(244,247,251,0.9);
+      --border: rgba(0,0,0,0.07);
+      --border-hover: rgba(0,0,0,0.14);
+      --border-focus: #0d9488;
+      --accent: #0d9488;
+      --accent-secondary: #0284c7;
+      --accent-dim: rgba(13, 148, 136, 0.08);
+      --accent-glow: rgba(13, 148, 136, 0.12);
+      --warning: #d97706;
+      --danger: #e11d48;
+      --info: #0284c7;
+      --success: #059669;
+      --purple: #7c3aed;
+      --text-primary: #0c1526;
+      --text-secondary: #475569;
       --text-muted: #94a3b8;
-      --shadow: 0 4px 24px rgba(0,0,0,0.05); 
-      --shadow-glow: 0 0 20px rgba(13, 148, 136, 0.1);
-      --navbar-bg: rgba(244, 247, 251, 0.8); 
-      --table-head-bg: rgba(244, 247, 251, 0.9);
+      --shadow: 0 8px 40px rgba(0,0,0,0.06);
+      --shadow-glow: 0 0 40px rgba(13, 148, 136, 0.05);
+      --glass: rgba(255,255,255,0.7);
+      --glass-border: rgba(0,0,0,0.06);
+      --navbar-bg: rgba(244,247,251,0.85);
+      --table-head-bg: #f1f5f9;
       --row-hover: rgba(13, 148, 136, 0.04);
-      --overlay-bg: rgba(0,0,0,0.2); 
-      --toast-bg: rgba(255, 255, 255, 0.95); 
-      --modal-bg: rgba(255, 255, 255, 0.98);
-      --spinner-track: rgba(0,0,0,0.1); 
-      --spinner-top: #ffffff;
-      --spinner-accent-track: rgba(13, 148, 136, 0.2);
+      --toast-bg: rgba(255,255,255,0.95);
     }
-    
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
-    
-    /* Modern Animated Background */
-    body::before { 
-      content: ''; 
-      position: fixed; 
-      top: 0; left: 0; width: 100%; height: 100%; 
-      background: 
-        radial-gradient(circle at 10% 20%, rgba(0, 242, 195, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(77, 159, 255, 0.08) 0%, transparent 40%),
-        linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); 
-      pointer-events: none; z-index: 0; 
-    }
-    
-    ::-webkit-scrollbar { width: 6px; } 
-    ::-webkit-scrollbar-track { background: transparent; } 
-    ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-    
-    .login-wrapper { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; }
-    .login-wrapper.hidden { opacity: 0; visibility: hidden; pointer-events: none; transition: var(--transition); }
-    .login-card { 
-      background: var(--bg-card); 
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border); 
-      border-radius: var(--radius-lg); 
-      padding: 3rem; width: 100%; max-width: 420px; 
-      box-shadow: var(--shadow), var(--shadow-glow); 
-      animation: modalSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
-    }
-    .login-header { text-align: center; margin-bottom: 2.5rem; }
-    .login-icon { 
-      width: 72px; height: 72px; 
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark)); 
-      border-radius: 18px; display: flex; align-items: center; justify-content: center; 
-      font-size: 2rem; color: #0b1120; margin: 0 auto 1.5rem; 
-      box-shadow: 0 10px 25px rgba(0, 242, 195, 0.3);
-    }
-    .login-header h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; } 
-    .login-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
-    
-    .login-form { display: flex; flex-direction: column; gap: 1.5rem; }
-    .login-input-group { position: relative; }
-    .login-input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; transition: var(--transition); }
-    .login-input { 
-      background: var(--bg-input); border: 1px solid var(--border); 
-      border-radius: var(--radius); padding: 14px 16px 14px 48px; 
-      font-size: 0.95rem; font-family: inherit; color: var(--text-primary); outline: none; width: 100%; 
-      transition: var(--transition);
-    }
-    .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
-    .login-input:focus + i, .login-input:focus ~ i { color: var(--accent); }
-    .login-error { color: var(--danger); font-size: 0.85rem; text-align: center; min-height: 1.2rem; font-weight: 500; }
-    .login-btn { 
-      width: 100%; padding: 14px; border-radius: var(--radius); border: none; 
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark)); 
-      color: #0b1120; font-family: inherit; font-size: 1rem; font-weight: 700; 
-      cursor: pointer; transition: var(--transition);
-      box-shadow: 0 4px 15px rgba(0, 242, 195, 0.3);
-    }
-    .login-btn:hover { box-shadow: 0 8px 25px rgba(0, 242, 195, 0.5); transform: translateY(-2px); }
 
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated mesh gradient background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 20%, rgba(0,228,165,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 85% 75%, rgba(56,189,248,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(167,139,250,0.03) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+      animation: meshFloat 25s ease-in-out infinite alternate;
+    }
+    @keyframes meshFloat {
+      0%   { opacity: 1; transform: scale(1) translate(0,0); }
+      50%  { opacity: 0.8; transform: scale(1.05) translate(-1%,1%); }
+      100% { opacity: 1; transform: scale(1) translate(1%,-1%); }
+    }
+
+    /* Noise texture overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      opacity: 0.015;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(30px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes scaleIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes toastIn { from { opacity:0; transform:translateX(80px) scale(0.95); } to { opacity:1; transform:translateX(0) scale(1); } }
+    @keyframes toastOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(80px); } }
+    @keyframes successPop { 0% { transform:scale(0.4); opacity:0; } 50% { transform:scale(1.06); } 100% { transform:scale(1); opacity:1; } }
+    @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(0,228,165,0.15); } 50% { box-shadow: 0 0 40px rgba(0,228,165,0.3); } }
+    @keyframes dotBounce { 0%,100% { transform:scale(1); } 50% { transform:scale(1.5); } }
+    @keyframes rowIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes counterPop { 0% { transform:scale(1); } 50% { transform:scale(1.15); } 100% { transform:scale(1); } }
+
+    /* ============================================
+       LOGIN PAGE
+       ============================================ */
+    .login-wrapper {
+      position: fixed; inset: 0; z-index: 5000;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-primary);
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .login-wrapper.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .login-card {
+      background: var(--glass);
+      backdrop-filter: blur(40px) saturate(1.5);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2.5rem;
+      width: 100%; max-width: 420px;
+      box-shadow: var(--shadow), var(--shadow-glow);
+      animation: slideUp 0.6s ease-out;
+    }
+    .login-header { text-align: center; margin-bottom: 2.25rem; }
+    .login-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: #06080f;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,228,165,0.25);
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    .login-header h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+    .login-header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem; }
+    .login-form { display: flex; flex-direction: column; gap: 1.15rem; }
+    .login-input-group { position: relative; }
+    .login-input-group i {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 0.85rem; pointer-events: none;
+      transition: color 0.3s ease;
+    }
+    .login-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px 13px 46px;
+      font-size: 0.9rem; font-family: inherit; color: var(--text-primary);
+      outline: none; width: 100%;
+      transition: all 0.3s ease;
+    }
+    .login-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 4px var(--accent-dim);
+    }
+    .login-input:focus + i, .login-input:focus ~ i { color: var(--accent); }
+    .login-error { color: var(--danger); font-size: 0.8rem; text-align: center; min-height: 1.2rem; }
+    .login-btn {
+      width: 100%; padding: 13px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      color: #06080f; font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 24px rgba(0,228,165,0.2);
+    }
+    .login-btn:hover { box-shadow: 0 8px 40px rgba(0,228,165,0.35); transform: translateY(-2px); }
+    .login-btn:active { transform: translateY(0); }
+
+    /* ============================================
+       APP WRAPPER
+       ============================================ */
     .app-wrapper { display: none; position: relative; z-index: 1; }
-    .app-wrapper.visible { display: block; animation: fadeIn 0.8s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes modalSlide { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    
-    /* Navbar */
-    .navbar { 
-      position: sticky; top: 0; z-index: 100; 
-      background: var(--navbar-bg); 
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border); padding: 0 2rem; 
+    .app-wrapper.visible { display: block; animation: fadeIn 0.5s ease-out; }
+
+    /* ============================================
+       NAVBAR - Glassmorphism
+       ============================================ */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--navbar-bg);
+      backdrop-filter: blur(30px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
     }
-    .navbar-inner { max-width: 1500px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 72px; }
-    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .logo-icon { 
-      width: 42px; height: 42px; 
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark)); 
-      border-radius: 12px; display: flex; align-items: center; justify-content: center; 
-      font-size: 18px; color: #0b1120; font-weight: 800; 
-      box-shadow: 0 4px 10px rgba(0, 242, 195, 0.2);
+    .navbar-inner {
+      max-width: 1500px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
     }
-    .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; } .logo-text span { color: var(--accent); }
-    .nav-right { display: flex; align-items: center; gap: 16px; }
-    .last-sync { font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; background: var(--bg-input); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); }
-    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
-    .sync-dot.syncing { background: var(--warning); box-shadow: 0 0 10px var(--warning); animation: syncPulse 0.6s ease-in-out infinite; }
-    @keyframes syncPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
-    
-    .theme-toggle, .logout-btn { 
-      width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--border); 
-      background: var(--bg-input); color: var(--text-secondary); 
-      display: flex; align-items: center; justify-content: center; cursor: pointer; 
-      transition: var(--transition); position: relative; overflow: hidden; 
+    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; color: #06080f; font-weight: 800;
+      box-shadow: 0 4px 16px rgba(0,228,165,0.2);
     }
-    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); box-shadow: 0 0 15px var(--accent-dim); }
-    .logout-btn { color: var(--danger); border-color: rgba(255,77,77,0.2); }
-    .logout-btn:hover { background: rgba(255,77,77,0.1); border-color: var(--danger); box-shadow: 0 0 15px rgba(255,77,77,0.1); }
-    .theme-toggle .icon-sun, .theme-toggle .icon-moon { position: absolute; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    [data-theme="dark"] .theme-toggle .icon-sun { transform: translateY(40px); opacity: 0; } [data-theme="dark"] .theme-toggle .icon-moon { transform: translateY(0); opacity: 1; }
-    [data-theme="light"] .theme-toggle .icon-sun { transform: translateY(0); opacity: 1; } [data-theme="light"] .theme-toggle .icon-moon { transform: translateY(-40px); opacity: 0; }
-    
-    .main-container { max-width: 1500px; margin: 0 auto; padding: 2rem; }
-    
-    /* Stats Cards */
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
-    .stat-card { 
-      background: var(--bg-card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--border); border-radius: var(--radius-lg); 
-      padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1.15rem; 
-      transition: var(--transition); position: relative; overflow: hidden;
+    .logo-text { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.01em; }
+    .logo-text span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .last-sync {
+      font-size: 0.72rem; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); animation: pulse 2.5s ease-in-out infinite;
+    }
+    .sync-dot.syncing { background: var(--warning); animation: dotBounce 0.5s ease-in-out infinite; }
+    .nav-btn {
+      width: 42px; height: 42px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--glass);
+      backdrop-filter: blur(10px);
+      color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .nav-btn.logout { color: var(--danger); border-color: rgba(244,63,94,0.2); }
+    .nav-btn.logout:hover { border-color: var(--danger); background: rgba(244,63,94,0.08); }
+    .theme-toggle .icon-sun, .theme-toggle .icon-moon {
+      position: absolute; transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="dark"] .theme-toggle .icon-sun { transform: translateY(40px); opacity:0; }
+    [data-theme="dark"] .theme-toggle .icon-moon { transform: translateY(0); opacity:1; }
+    [data-theme="light"] .theme-toggle .icon-sun { transform: translateY(0); opacity:1; }
+    [data-theme="light"] .theme-toggle .icon-moon { transform: translateY(-40px); opacity:0; }
+
+    /* ============================================
+       MAIN CONTAINER
+       ============================================ */
+    .main-container { max-width: 1500px; margin: 0 auto; padding: 1.75rem 2rem 3rem; }
+
+    /* ============================================
+       STATS ROW - Bento Grid Style
+       ============================================ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem; margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(1.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.35rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
     }
     .stat-card::before {
-      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); opacity: 0; transition: var(--transition);
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 40%, var(--accent-dim));
+      opacity: 0; transition: opacity 0.4s ease;
     }
-    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-4px); box-shadow: var(--shadow); }
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: var(--shadow-glow); }
     .stat-card:hover::before { opacity: 1; }
-    .stat-icon { 
-      width: 50px; height: 50px; border-radius: 14px; 
-      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; 
-      transition: var(--transition);
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem; position: relative; z-index: 1; flex-shrink: 0;
     }
-    .stat-card:hover .stat-icon { transform: scale(1.1); }
-    .stat-icon.total { background: linear-gradient(135deg, rgba(0,242,195,0.15), rgba(0,242,195,0.05)); color: var(--accent); } 
-    .stat-icon.pending { background: linear-gradient(135deg, rgba(255,77,77,0.15), rgba(255,77,77,0.05)); color: var(--danger); } 
-    .stat-icon.proses { background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05)); color: #a855f7; } 
-    .stat-icon.ready { background: linear-gradient(135deg, rgba(255,181,71,0.15), rgba(255,181,71,0.05)); color: var(--warning); } 
-    .stat-icon.finish { background: linear-gradient(135deg, rgba(77,159,255,0.15), rgba(77,159,255,0.05)); color: var(--info); }
-    .stat-value { font-size: 1.75rem; font-weight: 800; line-height: 1; font-family: 'JetBrains Mono', monospace; }
-    .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; }
-    
-    .form-section-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 12px; }
-    .form-section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--border-hover), transparent); }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); } .form-label .required { color: var(--danger); }
-    .form-input, .form-select, .form-textarea { 
-      background: var(--bg-input); border: 1px solid var(--border); 
-      border-radius: var(--radius); padding: 11px 14px; font-size: 0.9rem; 
-      font-family: inherit; color: var(--text-primary); outline: none; width: 100%; 
-      transition: var(--transition);
+    .stat-icon.total { background: rgba(0,228,165,0.1); color: var(--accent); }
+    .stat-icon.pending { background: rgba(244,63,94,0.1); color: var(--danger); }
+    .stat-icon.proses { background: rgba(167,139,250,0.1); color: var(--purple); }
+    .stat-icon.ready { background: rgba(251,191,36,0.1); color: var(--warning); }
+    .stat-icon.finish { background: rgba(56,189,248,0.1); color: var(--info); }
+    .stat-info { position: relative; z-index: 1; }
+    .stat-value {
+      font-size: 1.75rem; font-weight: 900; line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
     }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); background: var(--bg-card-solid); }
-    .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-    
-    /* Buttons */
-    .btn { 
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
-      padding: 10px 22px; border-radius: var(--radius); border: 1px solid transparent; 
-      font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; 
-      transition: var(--transition); white-space: nowrap; position: relative; overflow: hidden;
+    .stat-value.pop { animation: counterPop 0.3s ease-out; }
+    .stat-label {
+      font-size: 0.68rem; color: var(--text-muted); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px;
     }
-    .btn-primary { 
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark)); 
-      color: #0b1120; box-shadow: 0 4px 15px rgba(0,242,195,0.2); border: none;
+
+    /* ============================================
+       TABLE CARD - Glassmorphism
+       ============================================ */
+    .table-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(1.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden; position: relative;
     }
-    .btn-primary:hover { box-shadow: 0 6px 25px rgba(0,242,195,0.4); transform: translateY(-2px); }
-    .btn-secondary { background: transparent; border-color: var(--border); color: var(--text-secondary); } 
-    .btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); background: var(--bg-input); }
-    .btn-danger { background: rgba(255,77,77,0.1); border-color: rgba(255,77,77,0.3); color: var(--danger); } 
-    .btn-danger:hover { background: rgba(255,77,77,0.2); box-shadow: 0 4px 15px rgba(255,77,77,0.1); }
-    .btn-sm { padding: 8px 16px; font-size: 0.8rem; border-radius: 10px; } .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-download { background: linear-gradient(135deg, #1d6f42, #1a5c38); color: #ffffff; border: 1px solid rgba(29,111,66,0.4); box-shadow: 0 4px 10px rgba(29,111,66,0.2); }
-    .btn-download:hover { box-shadow: 0 6px 20px rgba(29,111,66,0.3); transform: translateY(-2px); }
-    
-    /* Table Card */
-    .table-card { 
-      background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; position: relative; 
+    .table-toolbar {
+      padding: 1.25rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
     }
-    .table-toolbar { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-    .table-toolbar h2 { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 10px; } .table-toolbar h2 i { color: var(--accent); }
-    .toolbar-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .search-box { 
-      display: flex; align-items: center; gap: 8px; background: var(--bg-input); 
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 0 14px; 
-      transition: var(--transition);
+    .table-toolbar h2 {
+      font-size: 1.1rem; font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
     }
-    .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); background: var(--bg-card-solid); } .search-box i { color: var(--text-muted); font-size: 0.85rem; }
-    .search-box input { background: none; border: none; outline: none; color: var(--text-primary); font-family: inherit; font-size: 0.85rem; padding: 10px 0; width: 220px; }
-    .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-    .chip { 
-      padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); 
-      background: transparent; color: var(--text-muted); font-family: inherit; font-size: 0.75rem; 
-      font-weight: 600; cursor: pointer; transition: var(--transition); 
+    .table-toolbar h2 i { color: var(--accent); font-size: 0.95rem; }
+    .toolbar-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    /* Search Box */
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0 14px;
+      transition: all 0.3s ease;
     }
-    .chip:hover { border-color: var(--text-muted); color: var(--text-secondary); }
-    .chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-dim); }
-    
-    .table-wrapper { overflow-x: auto; max-height: 65vh; overflow-y: auto; }
-    .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .data-table thead th { 
-      padding: 12px 16px; text-align: left; font-size: 0.7rem; font-weight: 700; 
-      color: var(--text-muted); text-transform: uppercase; 
-      background: var(--table-head-bg); backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border); white-space: nowrap; 
-      position: sticky; top: 0; z-index: 5; letter-spacing: 0.5px;
+    .search-box:focus-within { border-color: var(--border-focus); box-shadow: 0 0 0 4px var(--accent-dim); }
+    .search-box i { color: var(--text-muted); font-size: 0.85rem; }
+    .search-box input {
+      background: none; border: none; outline: none;
+      color: var(--text-primary); font-family: inherit; font-size: 0.85rem;
+      padding: 10px 0; width: 200px;
     }
-    .data-table tbody tr { border-bottom: 1px solid var(--border); transition: var(--transition); } 
+    .search-box input::placeholder { color: var(--text-muted); }
+
+    /* Filter Chips */
+    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip {
+      padding: 6px 16px; border-radius: 24px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-secondary); font-family: inherit;
+      font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; transition: all 0.3s ease;
+      letter-spacing: 0.02em;
+    }
+    .chip:hover { border-color: var(--text-muted); color: var(--text-primary); }
+    .chip.active {
+      background: var(--accent-dim); border-color: var(--accent);
+      color: var(--accent); box-shadow: 0 0 16px rgba(0,228,165,0.08);
+    }
+
+    /* Table */
+    .table-wrapper { overflow-x: auto; max-height: 62vh; overflow-y: auto; }
+    .data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.8rem; }
+    .data-table thead th {
+      padding: 12px 14px; text-align: left;
+      font-size: 0.68rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      background: var(--table-head-bg);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap; position: sticky; top: 0; z-index: 5;
+    }
+    .data-table thead th:first-child { border-radius: 0; }
+    .data-table thead th:last-child { border-radius: 0; }
+    .data-table tbody tr {
+      transition: all 0.2s ease;
+      animation: rowIn 0.3s ease-out backwards;
+    }
     .data-table tbody tr:hover { background: var(--row-hover); }
-    .data-table tbody td { padding: 12px 16px; color: var(--text-secondary); white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
-    .data-table tbody td.name-cell { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; color: var(--text-primary); }
-    .data-table tbody td.editable-cell { cursor: pointer; } .data-table tbody td.editable-cell:hover { color: var(--accent); }
-    
-    .status-badge { 
-      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; 
-      border-radius: 6px; font-size: 0.7rem; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; 
-      letter-spacing: 0.5px;
+    .data-table tbody td {
+      padding: 11px 14px; color: var(--text-secondary);
+      white-space: nowrap; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem; border-bottom: 1px solid rgba(128,128,128,0.08);
     }
-    .status-badge.pending { background: rgba(255,77,77,0.1); color: #ff6b6b; border: 1px solid rgba(255,77,77,0.2); } 
-    .status-badge.proses { background: rgba(168,85,247,0.1); color: #c084fc; border: 1px solid rgba(168,85,247,0.2); } 
-    .status-badge.ready { background: rgba(255,181,71,0.1); color: #ffb547; border: 1px solid rgba(255,181,71,0.2); } 
-    .status-badge.finish { background: rgba(77,159,255,0.1); color: #4d9fff; border: 1px solid rgba(77,159,255,0.2); }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; } 
-    .status-badge.pending .status-dot { background: #ff6b6b; box-shadow: 0 0 5px #ff6b6b; } 
-    .status-badge.proses .status-dot { background: #c084fc; box-shadow: 0 0 5px #c084fc; } 
-    .status-badge.ready .status-dot { background: #ffb547; box-shadow: 0 0 5px #ffb547; } 
-    .status-badge.finish .status-dot { background: #4d9fff; box-shadow: 0 0 5px #4d9fff; }
-    
-    .action-btns { display: flex; gap: 8px; } 
-    .action-btn { 
-      width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); 
-      background: transparent; color: var(--text-muted); display: flex; align-items: center; 
-      justify-content: center; cursor: pointer; transition: var(--transition); font-size: 0.75rem; 
+    .data-table tbody td.name-cell {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 500; color: var(--text-primary);
     }
-    .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); transform: translateY(-2px); } 
-    .action-btn.delete:hover { border-color: var(--danger); color: var(--danger); background: rgba(255,77,77,0.1); transform: translateY(-2px); } 
+    .data-table tbody td.editable-cell { cursor: pointer; transition: color 0.2s; }
+    .data-table tbody td.editable-cell:hover { color: var(--accent); }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 24px;
+      font-size: 0.67rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: 0.03em;
+    }
+    .status-badge.pending { background: rgba(244,63,94,0.1); color: #fb7185; border: 1px solid rgba(244,63,94,0.15); }
+    .status-badge.proses { background: rgba(167,139,250,0.1); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.15); }
+    .status-badge.ready  { background: rgba(251,191,36,0.1); color: #fcd34d; border: 1px solid rgba(251,191,36,0.15); }
+    .status-badge.finish { background: rgba(56,189,248,0.1); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.15); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .status-badge.pending .status-dot { background: #fb7185; box-shadow: 0 0 6px rgba(244,63,94,0.4); }
+    .status-badge.proses .status-dot { background: #c4b5fd; box-shadow: 0 0 6px rgba(167,139,250,0.4); }
+    .status-badge.ready  .status-dot { background: #fcd34d; box-shadow: 0 0 6px rgba(251,191,36,0.4); }
+    .status-badge.finish .status-dot { background: #7dd3fc; box-shadow: 0 0 6px rgba(56,189,248,0.4); }
+
+    /* Action Buttons */
+    .action-btns { display: flex; gap: 6px; }
+    .action-btn {
+      width: 30px; height: 30px; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease; font-size: 0.7rem;
+    }
+    .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); transform: scale(1.08); }
+    .action-btn.delete:hover { border-color: var(--danger); color: var(--danger); background: rgba(244,63,94,0.08); }
     .action-btn.delete.disabled-delete { opacity: 0.2; cursor: not-allowed; pointer-events: none; }
-    .empty-state { padding: 4rem 2rem; text-align: center; } .empty-state i { font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.3; } .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
-    
-    /* Modals */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: var(--overlay-bg); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 2rem; }
-    .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
-    .modal { 
-      background: var(--modal-bg); backdrop-filter: blur(20px);
-      border: 1px solid var(--border); border-radius: var(--radius-lg); 
-      width: 100%; max-width: 520px; box-shadow: var(--shadow); 
-      animation: modalSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; display: flex; flex-direction: column; 
+
+    .empty-state { padding: 4rem 2rem; text-align: center; }
+    .empty-state i { font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state p { color: var(--text-muted); font-size: 0.85rem; }
+
+    .table-footer {
+      padding: 0.9rem 1.75rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.73rem; color: var(--text-muted);
     }
-    .modal.modal-lg { max-width: 800px; }
-    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-    .modal-header h3 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; } .modal-header h3 i { color: var(--accent); }
-    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 4px; width: 32px; height: 32px; border-radius: 8px; transition: var(--transition); } 
-    .modal-close:hover { color: var(--text-primary); background: var(--bg-input); }
-    .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
-    .modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; flex-shrink: 0; }
-    
-    /* Toast */
-    .toast-container { position: fixed; top: 90px; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
-    .toast { 
-      display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: var(--radius); 
-      background: var(--toast-bg); backdrop-filter: blur(20px);
-      border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 0.85rem; 
-      animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); min-width: 300px; 
+
+    /* ============================================
+       FORM ELEMENTS
+       ============================================ */
+    .form-section-title {
+      font-size: 0.72rem; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 0.85rem; margin-top: 0.25rem;
+      display: flex; align-items: center; gap: 10px;
     }
-    .toast.success { border-left: 4px solid var(--success); } .toast.error { border-left: 4px solid var(--danger); } .toast.info { border-left: 4px solid var(--info); } .toast.warning { border-left: 4px solid var(--warning); }
+    .form-section-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, var(--border-hover), transparent);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1rem; margin-bottom: 1.25rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 0.73rem; font-weight: 600; color: var(--text-secondary); }
+    .form-label .required { color: var(--danger); }
+    .form-input, .form-select, .form-textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 13px; font-size: 0.85rem;
+      font-family: inherit; color: var(--text-primary);
+      outline: none; width: 100%;
+      transition: all 0.3s ease;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 4px var(--accent-dim);
+    }
+    .form-select {
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a5e80' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 13px center;
+      padding-right: 36px;
+    }
+    .form-textarea { min-height: 70px; resize: vertical; }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--radius);
+      border: 1px solid transparent; font-family: inherit;
+      font-size: 0.83rem; font-weight: 600;
+      cursor: pointer; transition: all 0.3s ease; white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      color: #06080f;
+      box-shadow: 0 4px 20px rgba(0,228,165,0.2);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 32px rgba(0,228,165,0.35); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary { background: transparent; border-color: var(--border); color: var(--text-secondary); }
+    .btn-secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+    .btn-danger { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.2); color: var(--danger); }
+    .btn-danger:hover { background: rgba(244,63,94,0.15); border-color: var(--danger); }
+    .btn-download {
+      background: linear-gradient(135deg, #166534, #15803d);
+      color: #ffffff; border: 1px solid rgba(22,101,52,0.4);
+    }
+    .btn-download:hover { box-shadow: 0 4px 20px rgba(34,197,94,0.2); transform: translateY(-1px); }
+    .btn-sm { padding: 8px 16px; font-size: 0.78rem; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ============================================
+       MODAL - Glassmorphism
+       ============================================ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      z-index: 1000; align-items: center; justify-content: center; padding: 2rem;
+    }
+    .modal-overlay.active { display: flex; animation: fadeIn 0.25s ease-out; }
+    .modal {
+      background: var(--bg-card-solid);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      width: 100%; max-width: 520px;
+      box-shadow: var(--shadow), 0 0 60px rgba(0,228,165,0.05);
+      animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1);
+      max-height: 90vh; display: flex; flex-direction: column;
+    }
+    .modal.modal-lg { max-width: 820px; }
+    .modal-header {
+      padding: 1.2rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .modal-header h3 {
+      font-size: 1rem; font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .modal-header h3 i { color: var(--accent); }
+    .modal-close {
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; font-size: 1rem; padding: 6px; border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    .modal-close:hover { color: var(--text-primary); background: var(--accent-dim); }
+    .modal-body { padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.15rem; overflow-y: auto; }
+    .modal-footer {
+      padding: 1rem 1.75rem;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0;
+    }
+
+    /* ============================================
+       TOAST NOTIFICATIONS
+       ============================================ */
+    .toast-container {
+      position: fixed; top: 84px; right: 2rem; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: var(--radius);
+      background: var(--toast-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow); font-size: 0.84rem;
+      animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1);
+      min-width: 300px;
+    }
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.success i { color: var(--success); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    .toast.error i   { color: var(--danger); }
+    .toast.info    { border-left: 3px solid var(--info); }
+    .toast.info i    { color: var(--info); }
+    .toast.warning { border-left: 3px solid var(--warning); }
+    .toast.warning i { color: var(--warning); }
     .toast.removing { animation: toastOut 0.3s ease-in forwards; }
-    @keyframes toastIn { from { opacity: 0; transform: translateX(60px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } } 
-    @keyframes toastOut { from { opacity: 1; transform: translateX(0) scale(1); } to { opacity: 0; transform: translateX(60px) scale(0.95); } }
-    
-    .spinner { width: 18px; height: 18px; border: 2px solid var(--spinner-track); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 10; align-items: center; justify-content: center; border-radius: var(--radius-lg); }
-    .loading-overlay.active { display: flex; } .loading-overlay .spinner { width: 32px; height: 32px; }
-    
-    .success-overlay { display: none; position: fixed; inset: 0; background: var(--overlay-bg); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
+
+    /* ============================================
+       SUCCESS OVERLAY
+       ============================================ */
+    .success-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+      z-index: 2000; align-items: center; justify-content: center;
+    }
     .success-overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
-    .success-card { 
-      background: var(--modal-bg); backdrop-filter: blur(20px);
-      border: 1px solid var(--accent); border-radius: var(--radius-lg); 
-      padding: 3rem; text-align: center; box-shadow: 0 0 60px rgba(0,242,195,0.2); 
-      animation: successPop 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+    .success-card {
+      background: var(--bg-card-solid);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius-xl);
+      padding: 3rem; text-align: center;
+      box-shadow: 0 0 80px rgba(0,228,165,0.15);
+      animation: successPop 0.5s cubic-bezier(0.16,1,0.3,1);
     }
-    @keyframes successPop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.02); } 100% { transform: scale(1); opacity: 1; } }
-    .success-icon { 
-      width: 80px; height: 80px; border-radius: 50%; 
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark)); 
-      display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; 
-      font-size: 2.2rem; color: #0b1120; box-shadow: 0 0 30px var(--accent-glow);
+    .success-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem; font-size: 2.2rem; color: #06080f;
+      box-shadow: 0 8px 32px rgba(0,228,165,0.3);
     }
-    
-    .table-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
-    
-    @media (max-width: 768px) { 
-      .navbar { padding: 0 1rem; } .navbar-inner { height: auto; padding: 0.75rem 0; flex-wrap: wrap; gap: 0.75rem; } 
-      .main-container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .stats-row { grid-template-columns: repeat(2, 1fr); } 
-      .table-toolbar { flex-direction: column; align-items: stretch; } .search-box input { width: 100%; } 
+    .success-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .success-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.75rem; }
+
+    /* ============================================
+       SPINNER & LOADING
+       ============================================ */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    .loading-overlay {
+      display: none; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      z-index: 10; align-items: center; justify-content: center; border-radius: var(--radius-xl);
+    }
+    .loading-overlay.active { display: flex; }
+    .loading-overlay .spinner { width: 36px; height: 36px; border-width: 3px; }
+
+    /* ============================================
+       SKELETON LOADER
+       ============================================ */
+    .skeleton-row { display: flex; gap: 1rem; padding: 0.85rem 1.75rem; }
+    .skeleton-block {
+      height: 14px; border-radius: 6px;
+      background: linear-gradient(90deg, var(--border) 25%, var(--border-hover) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 1024px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1rem; }
+      .navbar-inner { height: auto; padding: 0.85rem 0; flex-wrap: wrap; gap: 0.75rem; }
+      .main-container { padding: 1rem; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .table-toolbar { flex-direction: column; align-items: stretch; }
+      .search-box input { width: 100%; }
+      .modal { margin: 1rem; }
+      .toast-container { right: 1rem; left: 1rem; }
+      .toast { min-width: unset; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-card { padding: 1rem; }
+      .stat-value { font-size: 1.4rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
 <body>
 
+  <!-- ============================================
+       LOGIN PAGE
+       ============================================ -->
   <div class="login-wrapper" id="loginWrapper">
     <div class="login-card">
       <div class="login-header">
@@ -381,19 +687,22 @@
       </div>
       <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
         <div class="login-input-group">
-          <input type="text" class="login-input" id="loginUser" placeholder="Username" required>
+          <input type="text" class="login-input" id="loginUser" placeholder="Username" autocomplete="username" required>
           <i class="fas fa-user"></i>
         </div>
         <div class="login-input-group">
-          <input type="password" class="login-input" id="loginPass" placeholder="Password" required>
+          <input type="password" class="login-input" id="loginPass" placeholder="Password" autocomplete="current-password" required>
           <i class="fas fa-lock"></i>
         </div>
         <div class="login-error" id="loginError"></div>
-        <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+        <button type="submit" class="login-btn" id="loginBtn"><i class="fas fa-arrow-right-to-bracket"></i> Masuk</button>
       </form>
     </div>
   </div>
 
+  <!-- ============================================
+       MAIN APPLICATION
+       ============================================ -->
   <div class="app-wrapper" id="appWrapper">
     <nav class="navbar">
       <div class="navbar-inner">
@@ -402,24 +711,46 @@
           <div class="logo-text">Order<span>Komponen</span></div>
         </a>
         <div class="nav-right">
-          <button class="btn btn-primary btn-sm" onclick="openInputModal()"><i class="fas fa-plus-circle"></i> Input Order</button>
+          <button class="btn btn-primary btn-sm" onclick="openInputModal()"><i class="fas fa-plus"></i> Input Order</button>
           <span class="last-sync" id="lastSync">--:--:--</span>
           <div class="sync-dot" id="syncDot"></div>
-          <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-sun icon-sun"></i><i class="fas fa-moon icon-moon"></i></button>
-          <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
+          <button class="nav-btn theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <i class="fas fa-sun icon-sun"></i>
+            <i class="fas fa-moon icon-moon"></i>
+          </button>
+          <button class="nav-btn logout" onclick="handleLogout()" aria-label="Logout">
+            <i class="fas fa-right-from-bracket"></i>
+          </button>
         </div>
       </div>
     </nav>
-    
+
     <main class="main-container">
+      <!-- Statistik -->
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-icon total"><i class="fas fa-clipboard-list"></i></div><div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Order</div></div></div>
-        <div class="stat-card"><div class="stat-icon pending"><i class="fas fa-clock"></i></div><div><div class="stat-value" id="statPending">0</div><div class="stat-label">Pending</div></div></div>
-        <div class="stat-card"><div class="stat-icon proses"><i class="fas fa-spinner"></i></div><div><div class="stat-value" id="statProses">0</div><div class="stat-label">Proses</div></div></div>
-        <div class="stat-card"><div class="stat-icon ready"><i class="fas fa-box"></i></div><div><div class="stat-value" id="statReady">0</div><div class="stat-label">Ready</div></div></div>
-        <div class="stat-card"><div class="stat-icon finish"><i class="fas fa-check-circle"></i></div><div><div class="stat-value" id="statFinish">0</div><div class="stat-label">Finish</div></div></div>
+        <div class="stat-card">
+          <div class="stat-icon total"><i class="fas fa-layer-group"></i></div>
+          <div class="stat-info"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Order</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon pending"><i class="fas fa-clock"></i></div>
+          <div class="stat-info"><div class="stat-value" id="statPending">0</div><div class="stat-label">Pending</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon proses"><i class="fas fa-arrows-rotate"></i></div>
+          <div class="stat-info"><div class="stat-value" id="statProses">0</div><div class="stat-label">Proses</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon ready"><i class="fas fa-box-open"></i></div>
+          <div class="stat-info"><div class="stat-value" id="statReady">0</div><div class="stat-label">Ready</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon finish"><i class="fas fa-circle-check"></i></div>
+          <div class="stat-info"><div class="stat-value" id="statFinish">0</div><div class="stat-label">Finish</div></div>
+        </div>
       </div>
 
+      <!-- Tabel Data -->
       <div class="table-card">
         <div class="table-toolbar">
           <h2><i class="fas fa-database"></i> Database Order</h2>
@@ -431,22 +762,32 @@
               <button class="chip" onclick="filterStatus('READY', this)">READY</button>
               <button class="chip" onclick="filterStatus('FINISH', this)">FINISH</button>
             </div>
-            <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari order..." id="searchInput" oninput="debouncedSearch()"></div>
-            <button class="btn btn-download btn-sm" onclick="downloadExcel()"><i class="fas fa-file-excel"></i> Download</button>
+            <div class="search-box">
+              <i class="fas fa-magnifying-glass"></i>
+              <input type="text" placeholder="Cari order..." id="searchInput" oninput="debouncedSearch()">
+            </div>
+            <button class="btn btn-download btn-sm" onclick="downloadExcel()"><i class="fas fa-file-arrow-down"></i> Excel</button>
           </div>
         </div>
         <div class="table-wrapper">
           <table class="data-table" id="dataTableEl" style="display:none;">
             <thead>
               <tr>
-                <th>#</th><th>Status</th><th>Teknisi</th><th>Tgl Pengajuan</th><th>No. Service</th>
-                <th>Type (IDNO)</th><th>No. Serie</th><th>No Gudang</th><th>Nama Part</th><th>QTY</th>
-                <th>Prod.</th><th>Layanan</th><th>Nama Konsumen</th><th>No. HP</th><th>Tgl Order</th>
-                <th>No. Order</th><th>Keterangan</th><th>Aksi</th>
+                <th>#</th><th>Status</th><th>Teknisi</th><th>Tgl Pengajuan</th>
+                <th>No. Service</th><th>Type (IDNO)</th><th>No. Serie</th><th>No Gudang</th>
+                <th>Nama Part</th><th>QTY</th><th>Prod.</th><th>Layanan</th>
+                <th>Nama Konsumen</th><th>No. HP</th><th>Tgl Order</th><th>No. Order</th>
+                <th>Keterangan</th><th>Aksi</th>
               </tr>
             </thead>
             <tbody id="tableBody"></tbody>
           </table>
+          <!-- Skeleton loader -->
+          <div id="skeletonLoader">
+            <div class="skeleton-row"><div class="skeleton-block" style="width:40px"></div><div class="skeleton-block" style="width:80px"></div><div class="skeleton-block" style="width:120px"></div><div class="skeleton-block" style="width:90px"></div><div class="skeleton-block" style="width:100px"></div><div class="skeleton-block" style="width:110px"></div><div class="skeleton-block" style="width:90px"></div></div>
+            <div class="skeleton-row"><div class="skeleton-block" style="width:40px"></div><div class="skeleton-block" style="width:80px"></div><div class="skeleton-block" style="width:140px"></div><div class="skeleton-block" style="width:80px"></div><div class="skeleton-block" style="width:90px"></div><div class="skeleton-block" style="width:100px"></div><div class="skeleton-block" style="width:80px"></div></div>
+            <div class="skeleton-row"><div class="skeleton-block" style="width:40px"></div><div class="skeleton-block" style="width:80px"></div><div class="skeleton-block" style="width:110px"></div><div class="skeleton-block" style="width:85px"></div><div class="skeleton-block" style="width:95px"></div><div class="skeleton-block" style="width:120px"></div><div class="skeleton-block" style="width:75px"></div></div>
+          </div>
         </div>
         <div class="empty-state" id="emptyState" style="display:none;">
           <i class="fas fa-inbox"></i><p>Belum ada data order.</p>
@@ -459,33 +800,96 @@
     </main>
   </div>
 
-  <!-- Input Modal -->
+  <!-- ============================================
+       MODAL: INPUT ORDER
+       ============================================ -->
   <div class="modal-overlay" id="inputModal">
     <div class="modal modal-lg" style="position:relative;">
       <div class="loading-overlay" id="formLoading"><div class="spinner"></div></div>
-      <div class="modal-header"><h3><i class="fas fa-file-invoice"></i> Input Order Komponen</h3><button class="modal-close" onclick="closeInputModal()"><i class="fas fa-times"></i></button></div>
+      <div class="modal-header">
+        <h3><i class="fas fa-file-circle-plus"></i> Input Order Komponen</h3>
+        <button class="modal-close" onclick="closeInputModal()"><i class="fas fa-xmark"></i></button>
+      </div>
       <div class="modal-body">
         <form id="orderForm" onsubmit="handleSubmit(event)" novalidate>
           <div class="form-section-title">Informasi Teknisi & Service</div>
           <div class="form-grid">
-            <div class="form-group"><label class="form-label">Teknisi <span class="required">*</span></label><select class="form-select" name="TEKNISI" required><option value="">-- Pilih --</option><option value="YANDRI OTTU">YANDRI OTTU</option><option value="HARMINDO LAMMA">HARMINDO LAMMA</option><option value="INOSENCIUS FA'OT">INOSENCIUS FA'OT</option><option value="RIZALDI ABDULLAH">RIZALDI ABDULLAH</option><option value="KRISTIAN OPENG">KRISTIAN OPENG</option><option value="MUHAMMAD FAUZI">MUHAMMAD FAUZI</option></select></div>
-            <div class="form-group"><label class="form-label">Tgl Pengajuan <span class="required">*</span></label><input class="form-input" type="date" name="TGL PENGAJUAN ORD" id="inpTglPengajuan" required></div>
-            <div class="form-group"><label class="form-label">No. Service Case</label><input class="form-input" type="text" name="NO. SERVICE CASE"></div>
+            <div class="form-group">
+              <label class="form-label">Teknisi <span class="required">*</span></label>
+              <select class="form-select" name="TEKNISI" required>
+                <option value="">-- Pilih --</option>
+                <option value="YANDRI OTTU">YANDRI OTTU</option>
+                <option value="HARMINDO LAMMA">HARMINDO LAMMA</option>
+                <option value="INOSENCIUS FA'OT">INOSENCIUS FA'OT</option>
+                <option value="RIZALDI ABDULLAH">RIZALDI ABDULLAH</option>
+                <option value="KRISTIAN OPENG">KRISTIAN OPENG</option>
+                <option value="MUHAMMAD FAUZI">MUHAMMAD FAUZI</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tgl Pengajuan <span class="required">*</span></label>
+              <input class="form-input" type="date" name="TGL PENGAJUAN ORD" id="inpTglPengajuan" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Service Case</label>
+              <input class="form-input" type="text" name="NO. SERVICE CASE">
+            </div>
           </div>
+
           <div class="form-section-title">Informasi Komponen</div>
           <div class="form-grid">
-            <div class="form-group"><label class="form-label">Type (IDNO) <span class="required">*</span></label><input class="form-input" type="text" name="TYPE (IDNO)" required></div>
-            <div class="form-group"><label class="form-label">No. Serie</label><input class="form-input" type="text" name="NO. SERIE"></div>
-            <div class="form-group"><label class="form-label">No Gudang</label><input class="form-input" type="text" name="NO GUDANG"></div>
-            <div class="form-group"><label class="form-label">Nama Part <span class="required">*</span></label><input class="form-input" type="text" name="NAMA PART" required></div>
-            <div class="form-group"><label class="form-label">QTY <span class="required">*</span></label><input class="form-input" type="number" name="QTY" min="1" required></div>
-            <div class="form-group"><label class="form-label">Prod. <span class="required">*</span></label><select class="form-select" name="PROD." required><option value="">-- Pilih --</option><option value="AV">AV</option><option value="HA">HA</option><option value="EV">EV</option></select></div>
-            <div class="form-group"><label class="form-label">Layanan <span class="required">*</span></label><select class="form-select" name="LAYANAN" required><option value="">-- Pilih --</option><option value="KONSUMEN LANGSUNG">KONSUMEN LANGSUNG</option><option value="KUNJUNGAN TOKO">KUNJUNGAN TOKO</option><option value="KUNJUNGAN CALL">KUNJUNGAN CALL</option><option value="KUNJUNGAN LUAR KOTA">KUNJUNGAN LUAR KOTA</option><option value="LUAR KOTA PSR FLORES">LUAR KOTA PSR FLORES</option></select></div>
+            <div class="form-group">
+              <label class="form-label">Type (IDNO) <span class="required">*</span></label>
+              <input class="form-input" type="text" name="TYPE (IDNO)" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Serie</label>
+              <input class="form-input" type="text" name="NO. SERIE">
+            </div>
+            <div class="form-group">
+              <label class="form-label">No Gudang</label>
+              <input class="form-input" type="text" name="NO GUDANG">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Part <span class="required">*</span></label>
+              <input class="form-input" type="text" name="NAMA PART" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">QTY <span class="required">*</span></label>
+              <input class="form-input" type="number" name="QTY" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prod. <span class="required">*</span></label>
+              <select class="form-select" name="PROD." required>
+                <option value="">-- Pilih --</option>
+                <option value="AV">AV</option>
+                <option value="HA">HA</option>
+                <option value="EV">EV</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Layanan <span class="required">*</span></label>
+              <select class="form-select" name="LAYANAN" required>
+                <option value="">-- Pilih --</option>
+                <option value="KONSUMEN LANGSUNG">KONSUMEN LANGSUNG</option>
+                <option value="KUNJUNGAN TOKO">KUNJUNGAN TOKO</option>
+                <option value="KUNJUNGAN CALL">KUNJUNGAN CALL</option>
+                <option value="KUNJUNGAN LUAR KOTA">KUNJUNGAN LUAR KOTA</option>
+                <option value="LUAR KOTA PSR FLORES">LUAR KOTA PSR FLORES</option>
+              </select>
+            </div>
           </div>
+
           <div class="form-section-title">Informasi Konsumen</div>
           <div class="form-grid">
-            <div class="form-group"><label class="form-label">Nama Konsumen <span class="required">*</span></label><input class="form-input" type="text" name="NAMA KONSUMEN" required></div>
-            <div class="form-group"><label class="form-label">No. HP <span class="required">*</span></label><input class="form-input" type="text" inputmode="numeric" name="NO. HP" id="inpNoHp" placeholder="081234567890" required></div>
+            <div class="form-group">
+              <label class="form-label">Nama Konsumen <span class="required">*</span></label>
+              <input class="form-input" type="text" name="NAMA KONSUMEN" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. HP <span class="required">*</span></label>
+              <input class="form-input" type="text" inputmode="numeric" name="NO. HP" id="inpNoHp" placeholder="081234567890" required>
+            </div>
           </div>
         </form>
       </div>
@@ -496,207 +900,606 @@
     </div>
   </div>
 
-  <!-- Edit Modal -->
+  <!-- ============================================
+       MODAL: EDIT ORDER
+       ============================================ -->
   <div class="modal-overlay" id="editModal">
     <div class="modal">
-      <div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Order</h3><button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button></div>
+      <div class="modal-header">
+        <h3><i class="fas fa-pen-to-square"></i> Edit Order</h3>
+        <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-xmark"></i></button>
+      </div>
       <div class="modal-body">
         <input type="hidden" id="modalRowIndex">
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="modalStatus"><option value="PENDING">PENDING</option><option value="PROSES">PROSES</option><option value="READY">READY</option><option value="FINISH">FINISH</option></select></div>
-        <div class="form-group"><label class="form-label">Tgl Order</label><input class="form-input" type="date" id="modalTglOrder"></div>
-        <div class="form-group"><label class="form-label">No. Order</label><input class="form-input" type="text" id="modalNoOrder"></div>
-        <div class="form-group"><label class="form-label">Keterangan</label><textarea class="form-textarea" id="modalKeterangan" rows="3"></textarea></div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="modalStatus">
+            <option value="PENDING">PENDING</option>
+            <option value="PROSES">PROSES</option>
+            <option value="READY">READY</option>
+            <option value="FINISH">FINISH</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tgl Order</label>
+          <input class="form-input" type="date" id="modalTglOrder">
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. Order</label>
+          <input class="form-input" type="text" id="modalNoOrder">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan</label>
+          <textarea class="form-textarea" id="modalKeterangan"></textarea>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary btn-sm" onclick="closeEditModal()">Batal</button>
-        <button class="btn btn-primary btn-sm" onclick="submitUpdate()" id="modalSaveBtn"><i class="fas fa-save"></i> Simpan</button>
+        <button class="btn btn-primary btn-sm" onclick="submitUpdate()" id="modalSaveBtn"><i class="fas fa-floppy-disk"></i> Simpan</button>
       </div>
     </div>
   </div>
 
-  <!-- Success Overlay -->
+  <!-- ============================================
+       SUCCESS OVERLAY
+       ============================================ -->
   <div class="success-overlay" id="successOverlay">
     <div class="success-card">
       <div class="success-icon"><i class="fas fa-check"></i></div>
-      <h3 style="margin-bottom: 0.5rem;">Berhasil Disimpan!</h3>
-      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Data order baru tersimpan di Google Sheets.</p>
+      <h3>Berhasil Disimpan!</h3>
+      <p>Data order baru tersimpan di Google Sheets.</p>
       <button class="btn btn-primary" onclick="closeSuccess()"><i class="fas fa-check"></i> Selesai</button>
     </div>
   </div>
-  
+
+  <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
     // ==========================================================
-    // KONFIGURASI API - GANTI DENGAN URL WEB APP ANDA
+    // KONFIGURASI - GANTI DENGAN URL WEB APP ANDA
+    // Setelah deploy Google Apps Script, paste URL-nya di sini
     // ==========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbybM4Wf5h_bBJ4F8gmwBNDz_dZwkUjzb59N-gZ-qKsFyNWe_9aGxk8qxGFr-vlt5ov3/exec';
-    
-    let allOrders=[], currentFilter='all', autoRefreshInterval=null, isLoadingData=false, isFirstLoad=true, isSubmitting=false;
+    const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DISINI';
+
+    // State
+    let allOrders = [];
+    let currentFilter = 'all';
+    let autoRefreshInterval = null;
+    let isLoadingData = false;
+    let isSubmitting = false;
     const AUTH_KEY = 'orderSystemAuth';
-    
+
+    // ==========================================================
+    // AUTH
+    // ==========================================================
     function checkAuth() {
       const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
       document.getElementById('loginWrapper').classList.toggle('hidden', isAuth);
       document.getElementById('appWrapper').classList.toggle('visible', isAuth);
       return isAuth;
     }
-    
+
     function handleLogin(e) {
       e.preventDefault();
-      if (document.getElementById('loginUser').value === 'admin' && document.getElementById('loginPass').value === 'kupang123') {
+      const user = document.getElementById('loginUser').value;
+      const pass = document.getElementById('loginPass').value;
+      if (user === 'admin' && pass === 'kupang123') {
         document.getElementById('loginError').textContent = '';
-        setTimeout(() => { localStorage.setItem(AUTH_KEY, 'true'); checkAuth(); initApp(); document.getElementById('loginForm').reset(); }, 800);
-      } else { document.getElementById('loginError').textContent = 'Username atau Password salah!'; }
-    }
-    
-    function handleLogout() { localStorage.removeItem(AUTH_KEY); checkAuth(); clearInterval(autoRefreshInterval); showToast('Berhasil logout!', 'info'); }
-    function toggleTheme() { const h=document.documentElement, n=h.getAttribute('data-theme')==='dark'?'light':'dark'; h.setAttribute('data-theme',n); localStorage.setItem('theme',n); }
-    (function initTheme(){const s=localStorage.getItem('theme');if(s)document.documentElement.setAttribute('data-theme',s);})();
-    
-    function getStatusClass(s){s=(s||'').toUpperCase();return s==='PENDING'?'pending':s==='PROSES'?'proses':s==='READY'?'ready':s==='FINISH'?'finish':'pending';}
-    function canDelete(s){return(s||'').toUpperCase()==='FINISH';}
-    function escapeHtml(s){if(!s)return'';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
-    
-    function formatDateDisplay(d){ 
-      if(!d) return '-'; 
-      if(typeof d === 'object' && d instanceof Date) {
-        const yr = d.getFullYear(); const mo = String(d.getMonth()+1).padStart(2,'0'); const da = String(d.getDate()).padStart(2,'0');
-        return da+'/'+mo+'/'+yr;
+        document.getElementById('loginBtn').innerHTML = '<div class="spinner"></div> Memverifikasi...';
+        document.getElementById('loginBtn').disabled = true;
+        setTimeout(() => {
+          localStorage.setItem(AUTH_KEY, 'true');
+          checkAuth();
+          initApp();
+          document.getElementById('loginForm').reset();
+          document.getElementById('loginBtn').innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Masuk';
+          document.getElementById('loginBtn').disabled = false;
+        }, 600);
+      } else {
+        document.getElementById('loginError').textContent = 'Username atau Password salah!';
+        // Shake animation
+        const card = document.querySelector('.login-card');
+        card.style.animation = 'none';
+        card.offsetHeight; // reflow
+        card.style.animation = 'slideUp 0.3s ease-out';
       }
-      if(typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)){
-        const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(AUTH_KEY);
+      checkAuth();
+      clearInterval(autoRefreshInterval);
+      showToast('Berhasil logout!', 'info');
+    }
+
+    // ==========================================================
+    // TEMA
+    // ==========================================================
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    }
+    (function initTheme() {
+      const saved = localStorage.getItem('theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+    })();
+
+    // ==========================================================
+    // UTILITAS
+    // ==========================================================
+    function getStatusClass(s) {
+      s = (s || '').toUpperCase();
+      if (s === 'PENDING') return 'pending';
+      if (s === 'PROSES') return 'proses';
+      if (s === 'READY') return 'ready';
+      if (s === 'FINISH') return 'finish';
+      return 'pending';
+    }
+
+    function canDelete(s) { return (s || '').toUpperCase() === 'FINISH'; }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      const d = document.createElement('div');
+      d.textContent = String(s);
+      return d.innerHTML;
+    }
+
+    // Format tanggal ke DD/MM/YYYY
+    function formatDateDisplay(d) {
+      if (!d) return '-';
+      if (typeof d === 'object' && d instanceof Date) {
+        const da = String(d.getDate()).padStart(2, '0');
+        const mo = String(d.getMonth() + 1).padStart(2, '0');
+        return da + '/' + mo + '/' + d.getFullYear();
+      }
+      if (typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const p = d.split('-');
+        return p[2] + '/' + p[1] + '/' + p[0];
       }
       return String(d);
     }
 
+    // Helper aman case-insensitive + auto convert Date
     function getVal(obj, key) {
       if (!obj) return '';
       let val = '';
-      if (obj[key] !== undefined) { val = obj[key]; } 
-      else {
+      if (obj[key] !== undefined) {
+        val = obj[key];
+      } else {
         const lowerKey = key.toLowerCase();
-        for (let k in obj) { if (k.toLowerCase() === lowerKey) { val = obj[k]; break; } }
+        for (let k in obj) {
+          if (k.toLowerCase() === lowerKey) { val = obj[k]; break; }
+        }
       }
+      // Konversi Date object ke string YYYY-MM-DD
       if (val instanceof Date) {
-        const yr = val.getFullYear(); const mo = String(val.getMonth()+1).padStart(2,'0'); const da = String(val.getDate()).padStart(2,'0');
-        return yr+'-'+mo+'-'+da;
+        const yr = val.getFullYear();
+        const mo = String(val.getMonth() + 1).padStart(2, '0');
+        const da = String(val.getDate()).padStart(2, '0');
+        return yr + '-' + mo + '-' + da;
       }
       return val;
     }
 
+    // Debounce search
     let searchDebounceTimer;
-    function debouncedSearch(){clearTimeout(searchDebounceTimer);searchDebounceTimer=setTimeout(renderTable,250);}
-    
-    function openInputModal(){resetForm();document.getElementById('inputModal').classList.add('active');}
-    function closeInputModal(){document.getElementById('inputModal').classList.remove('active');}
-    function closeEditModal(){document.getElementById('editModal').classList.remove('active');}
-    function closeDeleteModal(){const m=document.getElementById('deleteConfirmModal');if(m)m.remove();}
-    function closeSuccess(){document.getElementById('successOverlay').classList.remove('active');}
-
-    document.getElementById('inpNoHp').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
-
-    function handleSubmit(e){
-      e.preventDefault(); if(isSubmitting) return; isSubmitting = true;
-      const f=document.getElementById('orderForm'),fd=new FormData(f),d={};
-      for(let p of fd.entries()) { d[p[0]] = p[1].trim(); }
-      
-      const rf=['TEKNISI','TGL PENGAJUAN ORD','TYPE (IDNO)','NAMA PART','QTY','PROD.','LAYANAN','NAMA KONSUMEN','NO. HP'];
-      for(let i=0;i<rf.length;i++){if(!d[rf[i]]){showToast(rf[i]+' wajib diisi!','error');isSubmitting=false;return;}}
-      
-      const sb=document.getElementById('submitBtn'),fl2=document.getElementById('formLoading');
-      sb.disabled=true;sb.innerHTML='<div class="spinner"></div> Menyimpan...';fl2.classList.add('active');
-      
-      fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'save', data: d }) })
-      .then(res => res.json())
-      .then(r => { isSubmitting=false;sb.disabled=false;sb.innerHTML='<i class="fas fa-paper-plane"></i> Simpan';fl2.classList.remove('active'); if(r.success){closeInputModal();document.getElementById('successOverlay').classList.add('active');loadOrders();}else showToast(r.message||'Gagal','error'); })
-      .catch(er => { isSubmitting=false;sb.disabled=false;sb.innerHTML='<i class="fas fa-paper-plane"></i> Simpan';fl2.classList.remove('active'); showToast('Error Koneksi: '+er.message,'error'); });
+    function debouncedSearch() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(renderTable, 200);
     }
-    
-    function resetForm(){document.getElementById('orderForm').reset();document.getElementById('inpTglPengajuan').value=new Date().toISOString().split('T')[0];}
-    
-    function loadOrders(){ 
-      if(isLoadingData)return;isLoadingData=true;const sd=document.getElementById('syncDot');if(sd)sd.classList.add('syncing');
-      fetch(API_URL).then(res=>res.json()).then(r=>{
-        isLoadingData=false;if(sd)sd.classList.remove('syncing');
-        if(r.success){ allOrders=r.data; renderTable();updateStats();updateSyncTime(); }
-        else showToast('Gagal memuat data','error');
-      }).catch(er=>{isLoadingData=false;if(sd)sd.classList.remove('syncing');showToast('Koneksi error: '+er.message,'error');});
+
+    // ==========================================================
+    // MODAL MANAGEMENT
+    // ==========================================================
+    function openInputModal() {
+      resetForm();
+      document.getElementById('inputModal').classList.add('active');
     }
-    
-    function getFilteredData(){let f=allOrders;if(currentFilter!=='all')f=f.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()===currentFilter);const s=(document.getElementById('searchInput').value||'').toLowerCase();if(s)f=f.filter(o=>Object.values(o).some(v=>String(v).toLowerCase().includes(s)));return f;}
-    
-    function renderTable(){
-      const tb=document.getElementById('tableBody'),es=document.getElementById('emptyState'),ft=document.getElementById('tableFooter'),fd=getFilteredData(), te=document.getElementById('dataTableEl');
-      if(fd.length===0){ tb.innerHTML=''; es.style.display='block'; ft.style.display='none'; if(te) te.style.display='none'; return; }
-      es.style.display='none'; ft.style.display='flex'; if(te) te.style.display='table';
-      document.getElementById('rowCount').textContent=fd.length; document.getElementById('rowTotal').textContent=allOrders.length;
-      
-      let h='';
-      for(let i=0;i<fd.length;i++){
-        const o=fd[i], s=getVal(o,'STATUS')||'PENDING', sc=getStatusClass(s), ri=o._rowIndex, dl=canDelete(s);
-        h+=`<tr>
-          <td>${i+1}</td><td><span class="status-badge ${sc}"><span class="status-dot"></span>${escapeHtml(s)}</span></td>
-          <td class="name-cell">${escapeHtml(getVal(o,'TEKNISI'))}</td><td>${formatDateDisplay(getVal(o,'TGL PENGAJUAN ORD'))}</td>
-          <td>${escapeHtml(getVal(o,'NO. SERVICE CASE'))}</td><td>${escapeHtml(getVal(o,'TYPE (IDNO)'))}</td><td>${escapeHtml(getVal(o,'NO. SERIE'))}</td>
-          <td>${escapeHtml(getVal(o,'NO GUDANG'))}</td><td class="name-cell">${escapeHtml(getVal(o,'NAMA PART'))}</td><td>${escapeHtml(getVal(o,'QTY'))}</td>
-          <td>${escapeHtml(getVal(o,'PROD.'))}</td><td>${escapeHtml(getVal(o,'LAYANAN'))}</td><td class="name-cell">${escapeHtml(getVal(o,'NAMA KONSUMEN'))}</td>
-          <td>${escapeHtml(getVal(o,'NO. HP'))}</td><td class="editable-cell" onclick="openEditModal(${ri})">${formatDateDisplay(getVal(o,'Tgl Order'))}</td>
-          <td class="editable-cell" onclick="openEditModal(${ri})" style="color:var(--accent);font-weight:600;">${escapeHtml(getVal(o,'No. Order'))||'-'}</td>
-          <td class="editable-cell" onclick="openEditModal(${ri})">${escapeHtml(getVal(o,'Keterangan Pemenuhan'))||'-'}</td>
-          <td><div class="action-btns"><button class="action-btn" onclick="openEditModal(${ri})"><i class="fas fa-pen"></i></button><button class="action-btn delete ${dl?'':'disabled-delete'}" onclick="${dl?`confirmDelete(${ri})`:`showDeleteWarning()`}"><i class="fas fa-trash"></i></button></div></td></tr>`;
+    function closeInputModal() { document.getElementById('inputModal').classList.remove('active'); }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
+    function closeDeleteModal() { const m = document.getElementById('deleteConfirmModal'); if (m) m.remove(); }
+    function closeSuccess() { document.getElementById('successOverlay').classList.remove('active'); }
+
+    // No. HP hanya angka
+    document.getElementById('inpNoHp').addEventListener('input', function () {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    // ==========================================================
+    // SUBMIT: SIMPAN DATA BARU
+    // ==========================================================
+    function handleSubmit(e) {
+      e.preventDefault();
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      const f = document.getElementById('orderForm');
+      const fd = new FormData(f);
+      const d = {};
+      for (let p of fd.entries()) { d[p[0]] = p[1].trim(); }
+
+      // Validasi field wajib
+      const required = ['TEKNISI', 'TGL PENGAJUAN ORD', 'TYPE (IDNO)', 'NAMA PART', 'QTY', 'PROD.', 'LAYANAN', 'NAMA KONSUMEN', 'NO. HP'];
+      for (let i = 0; i < required.length; i++) {
+        if (!d[required[i]]) {
+          showToast(required[i] + ' wajib diisi!', 'error');
+          isSubmitting = false;
+          return;
+        }
       }
-      tb.innerHTML=h;
+
+      const sb = document.getElementById('submitBtn');
+      const fl = document.getElementById('formLoading');
+      sb.disabled = true;
+      sb.innerHTML = '<div class="spinner"></div> Menyimpan...';
+      fl.classList.add('active');
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'save', data: d })
+      })
+        .then(res => res.json())
+        .then(r => {
+          isSubmitting = false;
+          sb.disabled = false;
+          sb.innerHTML = '<i class="fas fa-paper-plane"></i> Simpan';
+          fl.classList.remove('active');
+          if (r.success) {
+            closeInputModal();
+            document.getElementById('successOverlay').classList.add('active');
+            loadOrders();
+          } else {
+            showToast(r.message || 'Gagal menyimpan', 'error');
+          }
+        })
+        .catch(er => {
+          isSubmitting = false;
+          sb.disabled = false;
+          sb.innerHTML = '<i class="fas fa-paper-plane"></i> Simpan';
+          fl.classList.remove('active');
+          showToast('Error Koneksi: ' + er.message, 'error');
+        });
     }
-    
-    function showDeleteWarning(){showToast('Hapus hanya untuk status FINISH.','warning');}
-    
-    function openEditModal(ri){
-      const o=allOrders.find(x=>x._rowIndex===ri);if(!o)return;
-      document.getElementById('modalRowIndex').value=ri;
-      document.getElementById('modalStatus').value=(getVal(o,'STATUS')||'PENDING').toUpperCase();
-      document.getElementById('modalTglOrder').value=getVal(o,'Tgl Order')||'';
-      document.getElementById('modalNoOrder').value=getVal(o,'No. Order')||'';
-      document.getElementById('modalKeterangan').value=getVal(o,'Keterangan Pemenuhan')||'';
+
+    function resetForm() {
+      document.getElementById('orderForm').reset();
+      document.getElementById('inpTglPengajuan').value = new Date().toISOString().split('T')[0];
+    }
+
+    // ==========================================================
+    // LOAD DATA DARI GOOGLE SHEETS
+    // ==========================================================
+    function loadOrders() {
+      if (isLoadingData) return;
+      isLoadingData = true;
+      const sd = document.getElementById('syncDot');
+      if (sd) sd.classList.add('syncing');
+
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(r => {
+          isLoadingData = false;
+          if (sd) sd.classList.remove('syncing');
+          if (r.success) {
+            allOrders = r.data;
+            renderTable();
+            updateStats();
+            updateSyncTime();
+            // Sembunyikan skeleton
+            const sk = document.getElementById('skeletonLoader');
+            if (sk) sk.style.display = 'none';
+          } else {
+            showToast('Gagal memuat data', 'error');
+          }
+        })
+        .catch(er => {
+          isLoadingData = false;
+          if (sd) sd.classList.remove('syncing');
+          showToast('Koneksi error: ' + er.message, 'error');
+        });
+    }
+
+    // ==========================================================
+    // FILTER & SEARCH
+    // ==========================================================
+    function getFilteredData() {
+      let f = allOrders;
+      if (currentFilter !== 'all') {
+        f = f.filter(o => (getVal(o, 'STATUS') || '').toUpperCase() === currentFilter);
+      }
+      const s = (document.getElementById('searchInput').value || '').toLowerCase();
+      if (s) {
+        f = f.filter(o => Object.values(o).some(v => String(v).toLowerCase().includes(s)));
+      }
+      return f;
+    }
+
+    // ==========================================================
+    // RENDER TABEL
+    // ==========================================================
+    function renderTable() {
+      const tb = document.getElementById('tableBody');
+      const es = document.getElementById('emptyState');
+      const ft = document.getElementById('tableFooter');
+      const fd = getFilteredData();
+      const te = document.getElementById('dataTableEl');
+
+      if (fd.length === 0) {
+        tb.innerHTML = '';
+        es.style.display = 'block';
+        ft.style.display = 'none';
+        if (te) te.style.display = 'none';
+        return;
+      }
+
+      es.style.display = 'none';
+      ft.style.display = 'flex';
+      if (te) te.style.display = 'table';
+
+      document.getElementById('rowCount').textContent = fd.length;
+      document.getElementById('rowTotal').textContent = allOrders.length;
+
+      let h = '';
+      for (let i = 0; i < fd.length; i++) {
+        const o = fd[i];
+        const s = getVal(o, 'STATUS') || 'PENDING';
+        const sc = getStatusClass(s);
+        const ri = o._rowIndex;
+        const dl = canDelete(s);
+        const delay = Math.min(i * 20, 300); // stagger animasi
+
+        h += `<tr style="animation-delay:${delay}ms">
+          <td>${i + 1}</td>
+          <td><span class="status-badge ${sc}"><span class="status-dot"></span>${escapeHtml(s)}</span></td>
+          <td class="name-cell">${escapeHtml(getVal(o, 'TEKNISI'))}</td>
+          <td>${formatDateDisplay(getVal(o, 'TGL PENGAJUAN ORD'))}</td>
+          <td>${escapeHtml(getVal(o, 'NO. SERVICE CASE'))}</td>
+          <td>${escapeHtml(getVal(o, 'TYPE (IDNO)'))}</td>
+          <td>${escapeHtml(getVal(o, 'NO. SERIE'))}</td>
+          <td>${escapeHtml(getVal(o, 'NO GUDANG'))}</td>
+          <td class="name-cell">${escapeHtml(getVal(o, 'NAMA PART'))}</td>
+          <td>${escapeHtml(getVal(o, 'QTY'))}</td>
+          <td>${escapeHtml(getVal(o, 'PROD.'))}</td>
+          <td>${escapeHtml(getVal(o, 'LAYANAN'))}</td>
+          <td class="name-cell">${escapeHtml(getVal(o, 'NAMA KONSUMEN'))}</td>
+          <td>${escapeHtml(getVal(o, 'NO. HP'))}</td>
+          <td class="editable-cell" onclick="openEditModal(${ri})">${formatDateDisplay(getVal(o, 'Tgl Order'))}</td>
+          <td class="editable-cell" onclick="openEditModal(${ri})" style="color:var(--accent);font-weight:600;">${escapeHtml(getVal(o, 'No. Order')) || '-'}</td>
+          <td class="editable-cell" onclick="openEditModal(${ri})">${escapeHtml(getVal(o, 'Keterangan Pemenuhan')) || '-'}</td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn" onclick="openEditModal(${ri})" title="Edit"><i class="fas fa-pen"></i></button>
+              <button class="action-btn delete ${dl ? '' : 'disabled-delete'}" onclick="${dl ? `confirmDelete(${ri})` : `showDeleteWarning()`}" title="Hapus"><i class="fas fa-trash-can"></i></button>
+            </div>
+          </td>
+        </tr>`;
+      }
+      tb.innerHTML = h;
+    }
+
+    // ==========================================================
+    // EDIT MODAL
+    // ==========================================================
+    function showDeleteWarning() { showToast('Hapus hanya untuk status FINISH.', 'warning'); }
+
+    function openEditModal(ri) {
+      const o = allOrders.find(x => x._rowIndex === ri);
+      if (!o) return;
+      document.getElementById('modalRowIndex').value = ri;
+      document.getElementById('modalStatus').value = (getVal(o, 'STATUS') || 'PENDING').toUpperCase();
+      document.getElementById('modalTglOrder').value = getVal(o, 'Tgl Order') || '';
+      document.getElementById('modalNoOrder').value = getVal(o, 'No. Order') || '';
+      document.getElementById('modalKeterangan').value = getVal(o, 'Keterangan Pemenuhan') || '';
       document.getElementById('editModal').classList.add('active');
     }
-    
-    function submitUpdate(){
-      const ri=parseInt(document.getElementById('modalRowIndex').value),
-            d={status:document.getElementById('modalStatus').value,tglOrder:document.getElementById('modalTglOrder').value,noOrder:document.getElementById('modalNoOrder').value,keterangan:document.getElementById('modalKeterangan').value},
-            sb=document.getElementById('modalSaveBtn');
-      sb.disabled=true;sb.innerHTML='<div class="spinner"></div>';
-      fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'update',rowIndex:ri,data:d})})
-      .then(res=>res.json()).then(r=>{sb.disabled=false;sb.innerHTML='<i class="fas fa-save"></i> Simpan';if(r.success){showToast('Berhasil diupdate!','success');closeEditModal();loadOrders();}else showToast(r.message||'Gagal','error');})
-      .catch(er=>{sb.disabled=false;sb.innerHTML='<i class="fas fa-save"></i> Simpan';showToast('Error: '+er.message,'error');});
+
+    function submitUpdate() {
+      const ri = parseInt(document.getElementById('modalRowIndex').value);
+      const d = {
+        status: document.getElementById('modalStatus').value,
+        tglOrder: document.getElementById('modalTglOrder').value,
+        noOrder: document.getElementById('modalNoOrder').value,
+        keterangan: document.getElementById('modalKeterangan').value
+      };
+      const sb = document.getElementById('modalSaveBtn');
+      sb.disabled = true;
+      sb.innerHTML = '<div class="spinner"></div>';
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'update', rowIndex: ri, data: d })
+      })
+        .then(res => res.json())
+        .then(r => {
+          sb.disabled = false;
+          sb.innerHTML = '<i class="fas fa-floppy-disk"></i> Simpan';
+          if (r.success) {
+            showToast('Berhasil diupdate!', 'success');
+            closeEditModal();
+            loadOrders();
+          } else {
+            showToast(r.message || 'Gagal update', 'error');
+          }
+        })
+        .catch(er => {
+          sb.disabled = false;
+          sb.innerHTML = '<i class="fas fa-floppy-disk"></i> Simpan';
+          showToast('Error: ' + er.message, 'error');
+        });
     }
-    
-    function confirmDelete(ri){
-      const ov=document.createElement('div');ov.className='modal-overlay active';ov.id='deleteConfirmModal';
-      ov.innerHTML=`<div class="modal" style="max-width:400px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle"></i> Hapus Data</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p style="color: var(--text-secondary);">Apakah Anda yakin ingin menghapus order ini? Tindakan ini tidak dapat dibatalkan.</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>`;
+
+    // ==========================================================
+    // DELETE
+    // ==========================================================
+    function confirmDelete(ri) {
+      const ov = document.createElement('div');
+      ov.className = 'modal-overlay active';
+      ov.id = 'deleteConfirmModal';
+      ov.innerHTML = `
+        <div class="modal" style="max-width:400px;">
+          <div class="modal-header">
+            <h3 style="color:var(--danger);"><i class="fas fa-triangle-exclamation"></i> Konfirmasi Hapus</h3>
+            <button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-xmark"></i></button>
+          </div>
+          <div class="modal-body">
+            <p style="color:var(--text-secondary);font-size:0.9rem;">Yakin ingin menghapus order ini? Tindakan ini tidak dapat dibatalkan.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button>
+            <button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash-can"></i> Hapus</button>
+          </div>
+        </div>`;
       document.body.appendChild(ov);
-      document.getElementById('confirmDeleteBtn').addEventListener('click',()=>{
-        closeDeleteModal();fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete',rowIndex:ri})})
-        .then(res=>res.json()).then(r=>{if(r.success){showToast('Data berhasil dihapus!','success');loadOrders();}else showToast(r.message||'Gagal','error');})
-        .catch(er=>showToast('Error: '+er.message,'error'));
+
+      document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        closeDeleteModal();
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'delete', rowIndex: ri })
+        })
+          .then(res => res.json())
+          .then(r => {
+            if (r.success) { showToast('Berhasil dihapus!', 'success'); loadOrders(); }
+            else showToast(r.message || 'Gagal hapus', 'error');
+          })
+          .catch(er => showToast('Error: ' + er.message, 'error'));
       });
     }
-    
-    function updateStats(){animateCounter('statTotal',allOrders.length);animateCounter('statPending',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='PENDING').length);animateCounter('statProses',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='PROSES').length);animateCounter('statReady',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='READY').length);animateCounter('statFinish',allOrders.filter(o=>(getVal(o,'STATUS')||'').toUpperCase()==='FINISH').length);}
-    function animateCounter(id,t){const el=document.getElementById(id);let c=parseInt(el.textContent)||0;if(c===t)return;const s=t>c?1:-1;let v=c;const tm=setInterval(()=>{v+=s;el.textContent=v;if(v===t)clearInterval(tm);},30);}
-    
-    function downloadExcel(){const fd=getFilteredData();if(!fd.length){showToast('Tidak ada data!','error');return;}try{const eh=['No','Status','Teknisi','Tgl Pengajuan','No. Service','Type (IDNO)','No. Serie','No Gudang','Nama Part','QTY','Prod.','Layanan','Nama Konsumen','No. HP','Tgl Order','No. Order','Keterangan'];const rows=fd.map((o,i)=>[i+1,getVal(o,'STATUS'),getVal(o,'TEKNISI'),formatDateDisplay(getVal(o,'TGL PENGAJUAN ORD')),getVal(o,'NO. SERVICE CASE'),getVal(o,'TYPE (IDNO)'),getVal(o,'NO. SERIE'),getVal(o,'NO GUDANG'),getVal(o,'NAMA PART'),getVal(o,'QTY'),getVal(o,'PROD.'),getVal(o,'LAYANAN'),getVal(o,'NAMA KONSUMEN'),getVal(o,'NO. HP'),formatDateDisplay(getVal(o,'Tgl Order')),getVal(o,'No. Order'),getVal(o,'Keterangan Pemenuhan')]);const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([eh].concat(rows));XLSX.utils.book_append_sheet(wb,ws,'Order');XLSX.writeFile(wb,'Order_Components.xlsx');showToast('Excel terdownload!','success');}catch(er){showToast('Gagal: '+er.message,'error');}}
-    
-    function filterStatus(s,c){currentFilter=s;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');renderTable();}
-    function showToast(m,t){const c=document.getElementById('toastContainer'),ic={success:'fas fa-check-circle',error:'fas fa-exclamation-circle',info:'fas fa-info-circle',warning:'fas fa-exclamation-triangle'},ts=document.createElement('div');ts.className='toast '+t;ts.innerHTML=`<i class="${ic[t]||ic.info}" style="color: var(--${t})"></i><span>${escapeHtml(m)}</span>`;c.appendChild(ts);setTimeout(()=>{ts.classList.add('removing');setTimeout(()=>ts.remove(),300);},4000);}
-    function updateSyncTime(){document.getElementById('lastSync').textContent='Sync: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
-    
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeInputModal();closeEditModal();closeDeleteModal();document.getElementById('successOverlay').classList.remove('active');}});
-    document.getElementById('inputModal').addEventListener('click',e=>{if(e.target===document.getElementById('inputModal'))closeInputModal();});
-    document.getElementById('editModal').addEventListener('click',e=>{if(e.target===document.getElementById('editModal'))closeEditModal();});
 
-    function initApp(){resetForm();loadOrders();if(autoRefreshInterval)clearInterval(autoRefreshInterval);autoRefreshInterval=setInterval(loadOrders,15000);}
-    document.addEventListener('DOMContentLoaded',()=>{if(checkAuth())initApp();});
+    // ==========================================================
+    // STATISTIK
+    // ==========================================================
+    function updateStats() {
+      animateCounter('statTotal', allOrders.length);
+      animateCounter('statPending', allOrders.filter(o => (getVal(o, 'STATUS') || '').toUpperCase() === 'PENDING').length);
+      animateCounter('statProses', allOrders.filter(o => (getVal(o, 'STATUS') || '').toUpperCase() === 'PROSES').length);
+      animateCounter('statReady', allOrders.filter(o => (getVal(o, 'STATUS') || '').toUpperCase() === 'READY').length);
+      animateCounter('statFinish', allOrders.filter(o => (getVal(o, 'STATUS') || '').toUpperCase() === 'FINISH').length);
+    }
+
+    function animateCounter(id, target) {
+      const el = document.getElementById(id);
+      let current = parseInt(el.textContent) || 0;
+      if (current === target) return;
+      const step = target > current ? 1 : -1;
+      const duration = 300;
+      const steps = Math.abs(target - current);
+      const interval = Math.max(duration / steps, 20);
+      const timer = setInterval(() => {
+        current += step;
+        el.textContent = current;
+        if (current === target) {
+          clearInterval(timer);
+          // Pop animation
+          el.classList.add('pop');
+          setTimeout(() => el.classList.remove('pop'), 300);
+        }
+      }, interval);
+    }
+
+    // ==========================================================
+    // DOWNLOAD EXCEL
+    // ==========================================================
+    function downloadExcel() {
+      const fd = getFilteredData();
+      if (!fd.length) { showToast('Tidak ada data untuk didownload!', 'error'); return; }
+      try {
+        const headers = ['No', 'Status', 'Teknisi', 'Tgl Pengajuan', 'No. Service', 'Type (IDNO)', 'No. Serie', 'No Gudang', 'Nama Part', 'QTY', 'Prod.', 'Layanan', 'Nama Konsumen', 'No. HP', 'Tgl Order', 'No. Order', 'Keterangan'];
+        const rows = fd.map((o, i) => [
+          i + 1, getVal(o, 'STATUS'), getVal(o, 'TEKNISI'), formatDateDisplay(getVal(o, 'TGL PENGAJUAN ORD')),
+          getVal(o, 'NO. SERVICE CASE'), getVal(o, 'TYPE (IDNO)'), getVal(o, 'NO. SERIE'), getVal(o, 'NO GUDANG'),
+          getVal(o, 'NAMA PART'), getVal(o, 'QTY'), getVal(o, 'PROD.'), getVal(o, 'LAYANAN'),
+          getVal(o, 'NAMA KONSUMEN'), getVal(o, 'NO. HP'), formatDateDisplay(getVal(o, 'Tgl Order')),
+          getVal(o, 'No. Order'), getVal(o, 'Keterangan Pemenuhan')
+        ]);
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([headers].concat(rows));
+        // Set lebar kolom
+        ws['!cols'] = headers.map(() => ({ wch: 16 }));
+        XLSX.utils.book_append_sheet(wb, ws, 'Order');
+        XLSX.writeFile(wb, 'Order_Komponen_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+        showToast('File Excel berhasil didownload!', 'success');
+      } catch (er) {
+        showToast('Gagal download: ' + er.message, 'error');
+      }
+    }
+
+    // ==========================================================
+    // FILTER
+    // ==========================================================
+    function filterStatus(s, c) {
+      currentFilter = s;
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      renderTable();
+    }
+
+    // ==========================================================
+    // TOAST
+    // ==========================================================
+    function showToast(m, t) {
+      const c = document.getElementById('toastContainer');
+      const icons = {
+        success: 'fas fa-circle-check',
+        error: 'fas fa-circle-xmark',
+        info: 'fas fa-circle-info',
+        warning: 'fas fa-triangle-exclamation'
+      };
+      const ts = document.createElement('div');
+      ts.className = 'toast ' + t;
+      ts.innerHTML = `<i class="${icons[t] || icons.info}"></i><span>${escapeHtml(m)}</span>`;
+      c.appendChild(ts);
+      setTimeout(() => {
+        ts.classList.add('removing');
+        setTimeout(() => ts.remove(), 300);
+      }, 4000);
+    }
+
+    // ==========================================================
+    // SYNC TIME
+    // ==========================================================
+    function updateSyncTime() {
+      document.getElementById('lastSync').textContent = 'Sync: ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    // ==========================================================
+    // KEYBOARD & CLICK OUTSIDE
+    // ==========================================================
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeInputModal();
+        closeEditModal();
+        closeDeleteModal();
+        document.getElementById('successOverlay').classList.remove('active');
+      }
+    });
+    document.getElementById('inputModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('inputModal')) closeInputModal();
+    });
+    document.getElementById('editModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('editModal')) closeEditModal();
+    });
+
+    // ==========================================================
+    // INIT APP
+    // ==========================================================
+    function initApp() {
+      resetForm();
+      loadOrders();
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+      autoRefreshInterval = setInterval(loadOrders, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (checkAuth()) initApp();
+    });
   </script>
 </body>
 </html>
