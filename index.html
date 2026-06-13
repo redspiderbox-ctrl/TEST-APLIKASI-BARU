@@ -3,70 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Storage</title>
+    <title>File Storage System</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --bg-color: #f8f9fa; --text-color: #212529; --card-bg: #ffffff; }
-        [data-theme="dark"] { --bg-color: #121212; --text-color: #e0e0e0; --card-bg: #1e1e1e; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', sans-serif; transition: 0.3s; }
-        .card { background-color: var(--card-bg); border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .sidebar { width: 250px; height: 100vh; position: fixed; background-color: var(--card-bg); padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transition: 0.3s; }
-        .sidebar a { display: block; color: var(--text-color); text-decoration: none; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; }
-        .sidebar a:hover, .sidebar a.active { background-color: #0d6efd; color: white; }
-        .content { margin-left: 250px; padding: 30px; }
-        .stat-card { border-left: 4px solid; }
-        .preview-container img, .preview-container iframe { max-width: 100%; height: 400px; border: none; }
+        :root {
+            --bg-main: #f4f6f9; --bg-card: #ffffff; --text-main: #333333; --sidebar-bg: #212529; --sidebar-text: #adb5bd; --sidebar-hover: #0d6efd;
+        }
+        [data-theme="dark"] {
+            --bg-main: #121212; --bg-card: #1e1e1e; --text-main: #e0e0e0; --sidebar-bg: #000000; --sidebar-text: #aaaaaa;
+        }
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { background-color: var(--bg-card); border: none; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        
+        /* Login */
+        #loginPage { background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); }
+        .login-card { border-radius: 15px; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; height: 100vh; position: fixed; background-color: var(--sidebar-bg); padding-top: 20px; transition: all 0.3s; z-index: 1000; }
+        .sidebar .brand { color: #fff; font-size: 1.3rem; font-weight: bold; padding: 15px 25px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .sidebar a { display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; padding: 12px 25px; margin: 5px 15px; border-radius: 8px; font-size: 0.95rem; transition: 0.2s; }
+        .sidebar a i { margin-right: 15px; font-size: 1.1rem; width: 20px; text-align: center; }
+        .sidebar a:hover, .sidebar a.active { background-color: var(--sidebar-hover); color: #fff; }
+        .sidebar .role-badge { margin: 20px 25px; padding: 10px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.85rem; }
+        
+        /* Content */
+        .main-content { margin-left: 260px; padding: 30px; min-height: 100vh; }
+        .stat-card { border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
+        .stat-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 100px; height: 200px; background: rgba(255,255,255,0.1); transform: rotate(15deg); }
+        .stat-card h5 { font-size: 0.9rem; opacity: 0.9; }
+        .stat-card h2 { font-weight: bold; margin-top: 10px; }
+        
+        /* Table */
+        .table-responsive { margin-top: 20px; }
+        .table { color: var(--text-main); }
+        .badge-jenis { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; }
+        
+        /* Preview */
+        .preview-box iframe, .preview-box img { width: 100%; height: 450px; border: none; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN PAGE -->
+    <!-- ================= HALAMAN LOGIN ================= -->
     <div id="loginPage" class="d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-5 w-25">
-            <h3 class="text-center mb-4"><i class="fas fa-cloud-arrow-up text-primary"></i> File Storage</h3>
-            <input type="text" id="username" class="form-control mb-3" placeholder="Username">
-            <input type="password" id="password" class="form-control mb-3" placeholder="Password">
-            <button class="btn btn-primary w-100" onclick="doLogin()">LOGIN</button>
-            <div id="loginMsg" class="text-danger text-center mt-2" style="display:none;"></div>
+        <div class="card login-card w-400" style="width: 380px;">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-cloud-arrow-up fa-3x text-primary"></i>
+                    <h3 class="mt-3 fw-bold">FILE STORAGE</h3>
+                    <p class="text-muted">Silakan login untuk melanjutkan</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">USERNAME</label>
+                    <input type="text" id="username" class="form-control form-control-lg" placeholder="Masukkan username">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted small">PASSWORD</label>
+                    <input type="password" id="password" class="form-control form-control-lg" placeholder="Masukkan password">
+                </div>
+                <button class="btn btn-primary btn-lg w-100 fw-bold" onclick="doLogin()">LOGIN</button>
+                <div id="loginMsg" class="text-danger text-center mt-3 small" style="display:none;"></div>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- ================= HALAMAN APLIKASI ================= -->
     <div id="mainApp" style="display:none;">
-        <!-- SIDEBAR -->
+        
+        <!-- Sidebar -->
         <div class="sidebar">
-            <h5 class="mb-4 text-primary"><i class="fas fa-database"></i> DASHBOARD</h5>
-            <a href="#" class="active" onclick="showPage('home')"><i class="fas fa-home me-2"></i> Home</a>
-            <a href="#" onclick="showPage('upload')"><i class="fas fa-upload me-2"></i> Upload File</a>
-            <a href="#" onclick="showPage('data')"><i class="fas fa-folder me-2"></i> Data File</a>
-            <a href="#" onclick="showPage('search')"><i class="fas fa-search me-2"></i> Pencarian</a>
-            <hr>
-            <a href="#" onclick="toggleDarkMode()"><i class="fas fa-moon me-2"></i> Dark Mode</a>
-            <a href="#" onclick="doLogout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+            <div class="brand"><i class="fas fa-database me-2"></i> DASHBOARD</div>
+            <div class="role-badge">
+                Login sebagai: <span id="displayUser" class="fw-bold d-block mt-1"></span>
+                <span id="displayRole" class="badge bg-warning text-dark mt-1"></span>
+            </div>
+            <a href="#" class="active" onclick="showPage('home', this)"><i class="fas fa-tachometer-alt"></i> Home</a>
+            <a href="#" onclick="showPage('upload', this)"><i class="fas fa-cloud-upload-alt"></i> Upload File</a>
+            <a href="#" onclick="showPage('data', this)"><i class="fas fa-folder-open"></i> Data File</a>
+            <a href="#" onclick="showPage('search', this)"><i class="fas fa-search"></i> Pencarian</a>
+            <hr class="mx-4 border-secondary">
+            <a href="#" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> Dark Mode</a>
+            <a href="#" onclick="doLogout()" class="mt-auto"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
 
-        <!-- CONTENT AREA -->
-        <div class="content">
+        <!-- Main Content -->
+        <div class="main-content">
             
             <!-- HOME -->
             <div id="page-home" class="page">
-                <h3 class="mb-4">Dashboard Overview</h3>
+                <h3 class="fw-bold mb-4">Dashboard Overview</h3>
                 <div class="row" id="statsContainer">
-                    <!-- Stats akan dirender via JS -->
+                    <div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>
                 </div>
             </div>
 
             <!-- UPLOAD -->
             <div id="page-upload" class="page" style="display:none;">
-                <h3 class="mb-4">Upload File Baru</h3>
-                <div class="card p-4">
+                <h3 class="fw-bold mb-4">Upload File Baru</h3>
+                <div class="card p-4 col-lg-6">
                     <div class="mb-3">
-                        <label class="form-label">Nama Dokumen</label>
-                        <input type="text" id="namaDokumen" class="form-control" required>
+                        <label class="form-label fw-bold">Nama Dokumen</label>
+                        <input type="text" id="namaDokumen" class="form-control" placeholder="Contoh: Invoice Januari">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Kategori</label>
+                        <label class="form-label fw-bold">Kategori</label>
                         <select id="jenisFile" class="form-select">
                             <option value="PDF">PDF</option>
                             <option value="EXCEL">Excel</option>
@@ -75,81 +120,94 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Pilih File</label>
+                        <label class="form-label fw-bold">Pilih File</label>
                         <input type="file" id="fileInput" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Keterangan</label>
-                        <textarea id="keterangan" class="form-control" rows="3"></textarea>
+                        <label class="form-label fw-bold">Keterangan</label>
+                        <textarea id="keterangan" class="form-control" rows="3" placeholder="Deskripsi singkat file..."></textarea>
                     </div>
-                    <button class="btn btn-success" onclick="doUpload()"><i class="fas fa-cloud-upload-alt me-2"></i> UPLOAD</button>
-                    <div id="uploadMsg" class="mt-2"></div>
+                    <button class="btn btn-success fw-bold" onclick="doUpload()"><i class="fas fa-upload me-2"></i> UPLOAD FILE</button>
+                    <div id="uploadMsg" class="mt-3"></div>
                 </div>
             </div>
 
             <!-- DATA FILE -->
             <div id="page-data" class="page" style="display:none;">
-                <h3 class="mb-4">Data File</h3>
+                <h3 class="fw-bold mb-4">Data File</h3>
                 <div class="btn-group mb-3">
-                    <button class="btn btn-outline-primary" onclick="loadFiles('Semua')">Semua</button>
-                    <button class="btn btn-outline-danger" onclick="loadFiles('PDF')">PDF</button>
-                    <button class="btn btn-outline-success" onclick="loadFiles('EXCEL')">Excel</button>
-                    <button class="btn btn-outline-warning" onclick="loadFiles('FOTO')">Foto</button>
-                    <button class="btn btn-outline-info" onclick="loadFiles('VIDEO')">Video</button>
+                    <button class="btn btn-outline-primary active" onclick="loadFiles('Semua', this)">Semua</button>
+                    <button class="btn btn-outline-danger" onclick="loadFiles('PDF', this)">PDF</button>
+                    <button class="btn btn-outline-success" onclick="loadFiles('EXCEL', this)">Excel</button>
+                    <button class="btn btn-outline-warning" onclick="loadFiles('FOTO', this)">Foto</button>
+                    <button class="btn btn-outline-info" onclick="loadFiles('VIDEO', this)">Video</button>
                 </div>
-                <div class="card p-3">
-                    <table class="table table-hover">
-                        <thead><tr><th>Nama</th><th>Jenis</th><th>Ukuran</th><th>Uploader</th><th>Aksi</th></tr></thead>
-                        <tbody id="fileTableBody"></tbody>
+                <div class="card p-3 table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead><tr><th>Nama File</th><th>Jenis</th><th>Ukuran</th><th>Uploader</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+                        <tbody id="fileTableBody"><tr><td colspan="6" class="text-center">Loading data...</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
             <!-- PENCARIAN -->
             <div id="page-search" class="page" style="display:none;">
-                <h3 class="mb-4">Pencarian File</h3>
-                <div class="input-group mb-3">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Cari nama file atau keterangan...">
-                    <button class="btn btn-primary" onclick="searchFiles()"><i class="fas fa-search"></i> Cari</button>
-                </div>
-                <div class="card p-3">
-                    <table class="table table-hover">
-                        <thead><tr><th>Nama</th><th>Jenis</th><th>Ukuran</th><th>Aksi</th></tr></thead>
-                        <tbody id="searchTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- PREVIEW MODAL -->
-            <div class="modal fade" id="previewModal" tabindex="-1">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header"><h5 class="modal-title">Preview File</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                        <div class="modal-body preview-container text-center" id="previewContent"></div>
+                <h3 class="fw-bold mb-4">Pencarian File</h3>
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Cari nama file atau keterangan...">
+                            <button class="btn btn-primary" onclick="searchFiles()"><i class="fas fa-search me-2"></i> Cari</button>
+                        </div>
                     </div>
+                </div>
+                <div class="card p-3 table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead><tr><th>Nama File</th><th>Jenis</th><th>Ukuran</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+                        <tbody id="searchTableBody"><tr><td colspan="5" class="text-center text-muted">Silakan ketik kata kunci pencarian</td></tr></tbody>
+                    </table>
                 </div>
             </div>
 
         </div>
     </div>
 
+    <!-- MODAL PREVIEW -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewTitle">Preview File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body preview-box" id="previewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        // =========== KONFIGURASI ===========
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx4lsD3OkGWz96kNGW3FbOt97jFzr5tA3iV1YI9-9-sa2oDsyQPRJQqwz0UoQ_dfbI/exec'; // GANTI INI!
+        // ================= KONFIGURASI =================
+        const WEB_APP_URL = 'URL_WEB_APP_ANDA'; // GANTI DENGAN URL APPS SCRIPT ANDA
         let currentRole = 'Viewer';
         let currentUser = '';
 
-        // =========== AUTH ===========
+        // ================= AUTH =================
         async function doLogin() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
+            if(!u || !p) return;
+            
             const res = await postData({ action: 'login', username: u, password: p });
             if (res.success) {
                 currentUser = res.data.username;
                 currentRole = res.data.role;
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('displayUser').innerText = currentUser;
+                document.getElementById('displayRole').innerText = currentRole;
                 showPage('home');
                 loadStats();
             } else {
@@ -162,43 +220,52 @@
             currentUser = ''; currentRole = 'Viewer';
             document.getElementById('mainApp').style.display = 'none';
             document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
         }
 
-        // =========== NAVIGATION ===========
-        function showPage(page) {
+        // ================= NAVIGATION =================
+        function showPage(page, element) {
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('page-' + page).style.display = 'block';
-            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            
+            if(element) {
+                document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                element.classList.add('active');
+            }
 
             if (page === 'home') loadStats();
             if (page === 'data') loadFiles('Semua');
         }
 
-        // =========== STATS ===========
+        // ================= STATS =================
         async function loadStats() {
             const res = await getData({ action: 'getStats' });
             if (res.success) {
                 const d = res.data;
                 document.getElementById('statsContainer').innerHTML = `
-                    <div class="col-md-4 mb-3"><div class="card p-3 stat-card" style="border-color: #0d6efd;"><h6>Total File</h6><h2>${d.total}</h2></div></div>
-                    <div class="col-md-2 mb-3"><div class="card p-3 stat-card" style="border-color: #dc3545;"><h6>PDF</h6><h4>${d.pdf}</h4></div></div>
-                    <div class="col-md-2 mb-3"><div class="card p-3 stat-card" style="border-color: #198754;"><h6>Excel</h6><h4>${d.excel}</h4></div></div>
-                    <div class="col-md-2 mb-3"><div class="card p-3 stat-card" style="border-color: #ffc107;"><h6>Foto</h6><h4>${d.foto}</h4></div></div>
-                    <div class="col-md-2 mb-3"><div class="card p-3 stat-card" style="border-color: #0dcaf0;"><h6>Video</h6><h4>${d.video}</h4></div></div>
+                    <div class="col-md-4 mb-3"><div class="stat-card bg-primary text-white shadow"><h5><i class="fas fa-database me-2"></i>Total File</h5><h2>${d.total}</h2></div></div>
+                    <div class="col-md-2 mb-3"><div class="stat-card bg-danger text-white shadow"><h5>PDF</h5><h2>${d.pdf}</h2></div></div>
+                    <div class="col-md-2 mb-3"><div class="stat-card bg-success text-white shadow"><h5>Excel</h5><h2>${d.excel}</h2></div></div>
+                    <div class="col-md-2 mb-3"><div class="stat-card bg-warning text-dark shadow"><h5>Foto</h5><h2>${d.foto}</h2></div></div>
+                    <div class="col-md-2 mb-3"><div class="stat-card bg-info text-white shadow"><h5>Video</h5><h2>${d.video}</h2></div></div>
                 `;
             }
         }
 
-        // =========== LOAD FILES ===========
-        async function loadFiles(jenis) {
-            const res = await getData({ action: 'getFiles', jenis: jenis });
+        // ================= LOAD FILES =================
+        async function loadFiles(jenis, btn) {
+            if(btn) {
+                document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            const res = await getData({ action: 'getFiles', jenis: jenis, keyword: '' });
             renderTable(res, 'fileTableBody');
         }
 
         async function searchFiles() {
             const keyword = document.getElementById('searchInput').value;
-            const res = await getData({ action: 'getFiles', keyword: keyword });
+            const res = await getData({ action: 'getFiles', jenis: 'Semua', keyword: keyword });
             renderTable(res, 'searchTableBody');
         }
 
@@ -207,25 +274,34 @@
             tbody.innerHTML = '';
             if (res.success && res.data.length > 0) {
                 res.data.forEach(f => {
-                    let actBtns = `<a href="${f.link}" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-download"></i></a>
-                                   <button class="btn btn-sm btn-info" onclick="previewFile('${f.link}', '${f.jenis}', '${f.nama}')"><i class="fas fa-eye"></i></button>`;
+                    let actBtns = `
+                        <a href="${f.link}" target="_blank" class="btn btn-sm btn-outline-primary" title="Download"><i class="fas fa-download"></i></a>
+                        <button class="btn btn-sm btn-outline-info" onclick="previewFile('${f.link}', '${f.jenis}', '${f.nama}')" title="Preview"><i class="fas fa-eye"></i></button>
+                    `;
                     if (currentRole === 'Admin') {
-                        actBtns += `<button class="btn btn-sm btn-danger" onclick="deleteFile(${f.id})"><i class="fas fa-trash"></i></button>`;
+                        actBtns += `<button class="btn btn-sm btn-outline-danger" onclick="deleteFile(${f.id})" title="Hapus"><i class="fas fa-trash"></i></button>`;
                     }
+                    
+                    let badgeColor = f.jenis==='PDF'?'danger':f.jenis==='EXCEL'?'success':f.jenis==='FOTO'?'warning':'info';
+                    
                     tbody.innerHTML += `<tr>
-                        <td>${f.nama}</td><td><span class="badge bg-secondary">${f.jenis}</span></td>
-                        <td>${f.ukuran}</td><td>${f.uploader}</td><td>${actBtns}</td>
+                        <td class="fw-bold">${f.nama}</td>
+                        <td><span class="badge bg-${badgeColor} badge-jenis">${f.jenis}</span></td>
+                        <td>${f.ukuran}</td>
+                        <td>${f.uploader}</td>
+                        <td>${f.tanggal}</td>
+                        <td class="text-nowrap">${actBtns}</td>
                     </tr>`;
                 });
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">Tidak ada data</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data ditemukan</td></tr>';
             }
         }
 
-        // =========== UPLOAD ===========
+        // ================= UPLOAD =================
         async function doUpload() {
             const fileInput = document.getElementById('fileInput');
-            if (fileInput.files.length === 0) return alert("Pilih file dulu!");
+            if (fileInput.files.length === 0) return alert("Pilih file terlebih dahulu!");
 
             const file = fileInput.files[0];
             const ekstensi = file.name.split('.').pop();
@@ -234,61 +310,67 @@
             const formData = new FormData();
             formData.append('action', 'upload');
             formData.append('fileBlob', file);
-            formData.append('namaDokumen', document.getElementById('namaDokumen').value);
+            formData.append('namaDokumen', document.getElementById('namaDokumen').value || 'Untitled');
             formData.append('jenis', jenis);
             formData.append('ekstensi', ekstensi);
             formData.append('uploader', currentUser);
             formData.append('keterangan', document.getElementById('keterangan').value);
 
-            document.getElementById('uploadMsg').innerHTML = '<div class="alert alert-info">Uploading...</div>';
+            document.getElementById('uploadMsg').innerHTML = '<div class="alert alert-info mb-0"><i class="fas fa-spinner fa-spin me-2"></i>Sedang mengupload...</div>';
             
             try {
                 const res = await fetch(WEB_APP_URL, { method: 'POST', body: formData });
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('uploadMsg').innerHTML = '<div class="alert alert-success">Berhasil Upload!</div>';
+                    document.getElementById('uploadMsg').innerHTML = '<div class="alert alert-success mb-0"><i class="fas fa-check-circle me-2"></i>File berhasil diupload!</div>';
                     document.getElementById('namaDokumen').value = '';
                     document.getElementById('keterangan').value = '';
                     fileInput.value = '';
                 } else {
-                    document.getElementById('uploadMsg').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                    document.getElementById('uploadMsg').innerHTML = `<div class="alert alert-danger mb-0"><i class="fas fa-times-circle me-2"></i>${data.message}</div>`;
                 }
             } catch (e) {
-                document.getElementById('uploadMsg').innerHTML = `<div class="alert alert-danger">Error Network</div>`;
+                document.getElementById('uploadMsg').innerHTML = '<div class="alert alert-danger mb-0">Koneksi gagal. Pastikan Web App URL benar.</div>';
             }
         }
 
-        // =========== DELETE ===========
+        // ================= DELETE =================
         async function deleteFile(id) {
-            if(!confirm("Hapus file ini?")) return;
+            if(!confirm("Apakah Anda yakin ingin menghapus file ini?")) return;
             const res = await postData({ action: 'deleteFile', id: id });
             alert(res.message);
             loadFiles('Semua');
         }
 
-        // =========== PREVIEW ===========
+        // ================= PREVIEW =================
         function previewFile(link, jenis, nama) {
             const content = document.getElementById('previewContent');
-            const fileId = link.split('/d/')[1]?.split('/view')[0];
+            document.getElementById('previewTitle').innerText = nama;
+            const fileId = link.match(/[-\w]{25,}/)[0];
             
             if (jenis === 'PDF') {
-                content.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" width="100%" height="500"></iframe>`;
+                content.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview"></iframe>`;
             } else if (jenis === 'FOTO') {
                 content.innerHTML = `<img src="https://drive.google.com/uc?id=${fileId}" class="img-fluid">`;
             } else if (jenis === 'VIDEO') {
-                content.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" width="100%" height="500"></iframe>`;
+                content.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview"></iframe>`;
             } else {
-                content.innerHTML = `<div class="alert alert-warning">Preview tidak tersedia. Silakan Download.</div>`;
+                content.innerHTML = `<div class="text-center py-5"><i class="fas fa-file fa-3x mb-3"></i><h5>Preview tidak tersedia untuk format ini.</h5><a href="${link}" target="_blank" class="btn btn-primary mt-2">Download File</a></div>`;
             }
             new bootstrap.Modal(document.getElementById('previewModal')).show();
         }
 
-        // =========== DARK MODE ===========
+        // ================= DARK MODE =================
         function toggleDarkMode() {
-            document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            const currentTheme = document.body.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+            }
         }
 
-        // =========== FETCH HELPER ===========
+        // ================= FETCH HELPER =================
         async function postData(payload) {
             const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
             return await res.json();
