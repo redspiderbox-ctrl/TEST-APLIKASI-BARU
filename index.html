@@ -148,6 +148,10 @@
       document.getElementById('noSurat').value = noSurat;
       document.getElementById('tanggal').value = today.toISOString().split('T')[0];
       
+      // Muat konfigurasi URL jika ada
+      const savedUrl = localStorage.getItem('sheetUrl');
+      if(savedUrl) document.getElementById('sheetUrlInput').value = savedUrl;
+
       addItem(); // Tambah baris awal
     }
 
@@ -168,6 +172,7 @@
         if (item.id === id) {
           let updatedItem = { ...item, [field]: value };
           
+          // Hitung volume otomatis jika dimensi diisi (Format: PxLxT)
           if (field === 'dimensi') {
             const cleanedDimensi = value.replace(/\s+/g, '').toLowerCase().replace(/\*/g, 'x');
             const parts = cleanedDimensi.split('x');
@@ -193,4 +198,92 @@
         <tr class="border-b border-black text-blue-800">
           <td class="p-1 text-center border border-black font-medium">${index + 1}</td>
           <td class="p-1 border border-black"><input type="text" value="${item.sparepart}" onchange="handleItemChange(${item.id}, 'sparepart', this.value)" class="w-full bg-transparent outline-none px-1 font-medium"></td>
-          <td class="p-1 border border-black"><input type="number" value="${item.qty}" min="1" onchange="
+          <td class="p-1 border border-black"><input type="number" value="${item.qty}" min="1" onchange="handleItemChange(${item.id}, 'qty', this.value)" class="w-full bg-transparent outline-none px-1 text-center"></td>
+          <td class="p-1 border border-black"><input type="text" value="${item.dimensi}" onchange="handleItemChange(${item.id}, 'dimensi', this.value)" placeholder="PxLxT" class="w-full bg-transparent outline-none px-1 text-center"></td>
+          <td class="p-1 border border-black"><input type="text" value="${item.volume}" readonly class="w-full bg-transparent outline-none px-1 text-center bg-gray-50"></td>
+          <td class="p-1 border border-black"><input type="number" value="${item.colly}" min="0" onchange="handleItemChange(${item.id}, 'colly', this.value)" class="w-full bg-transparent outline-none px-1 text-center"></td>
+          <td class="p-1 border border-black"><input type="text" value="${item.keterangan}" onchange="handleItemChange(${item.id}, 'keterangan', this.value)" class="w-full bg-transparent outline-none px-1"></td>
+          <td class="p-1 text-center border border-black print-hidden">
+            <button onclick="removeItem(${item.id})" class="text-red-500 hover:text-red-700 font-bold">&times;</button>
+          </td>
+        </tr>
+      `).join('');
+      
+      lucide.createIcons(); // Re-render ikon jika ada yang baru
+    }
+
+    // Toggle Konfigurasi
+    function toggleConfig() {
+      document.getElementById('configPanel').classList.toggle('hidden');
+    }
+
+    // Simpan URL Web App ke Local Storage
+    function saveConfig() {
+      const url = document.getElementById('sheetUrlInput').value.trim();
+      if(url === '') {
+        alert('URL Web App tidak boleh kosong!');
+        return;
+      }
+      localStorage.setItem('sheetUrl', url);
+      alert('URL berhasil disimpan!');
+      toggleConfig();
+    }
+
+    // Kirim Data ke Google Sheets
+    async function handleSubmit() {
+      const webAppUrl = localStorage.getItem('sheetUrl');
+      if (!webAppUrl) {
+        alert('URL Web App belum dikonfigurasi! Klik tombol "Konfigurasi" untuk mengaturnya.');
+        toggleConfig();
+        return;
+      }
+
+      // Kumpulkan data header
+      const payload = {
+        noSurat: document.getElementById('noSurat').value,
+        tanggal: document.getElementById('tanggal').value,
+        kendaraan: document.getElementById('kendaraan').value,
+        penerima: document.getElementById('penerima').value,
+        alamatPenerima: document.getElementById('alamatPenerima').value,
+        items: items
+      };
+
+      // Validasi sederhana
+      if(!payload.penerima || !payload.noSurat) {
+        alert('Mohon isi No. Surat Jalan dan Nama Penerima!');
+        return;
+      }
+
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Menyimpan...`;
+
+      try {
+        const response = await fetch(webAppUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Gunakan text/plain untuk menghindari CORS redirect dari GAS
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        
+        if (result.result === 'success') {
+          alert('Data berhasil disimpan ke Google Spreadsheet!');
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Gagal menyimpan data. Pastikan URL Web App benar dan deployment sudah benar.\nPesan Error: ' + error.message);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Simpan ke Sheet`;
+        lucide.createIcons();
+      }
+    }
+
+    // Jalankan saat halaman dimuat
+    initForm();
+  </script>
+</body>
+</html>
