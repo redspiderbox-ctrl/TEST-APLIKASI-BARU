@@ -1,392 +1,196 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, Printer, Save, Plus, Trash2, Send } from 'lucide-react';
-
-export default function App() {
-  const [showConfig, setShowConfig] = useState(false);
-  const [sheetUrl, setSheetUrl] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-
-  // Form State
-  const [formData, setFormData] = useState({
-    noSurat: `SJ-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-    tanggal: new Date().toISOString().split('T')[0],
-    pengirim: '',
-    penerima: '',
-    alamatPenerima: '',
-    kendaraan: '',
-  });
-
-  const [items, setItems] = useState([
-    { id: 1, sparepart: '', qty: 1, dimensi: '', volume: '', colly: '', keterangan: '' }
-  ]);
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Surat Jalan</title>
   
-  const [logoError, setLogoError] = useState(false);
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-  // Load config from local storage on mount
-  useEffect(() => {
-    const savedUrl = localStorage.getItem('googleSheetUrl');
-    if (savedUrl) setSheetUrl(savedUrl);
-  }, []);
-
-  const handleConfigSave = () => {
-    localStorage.setItem('googleSheetUrl', sheetUrl);
-    setShowConfig(false);
-    alert('Konfigurasi URL Spreadsheet berhasil disimpan!');
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleItemChange = (id, field, value) => {
-    setItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const updatedItem = { ...item, [field]: value };
-        
-        // Auto-kalkulasi Volume jika kolom dimensi diisi dengan format PxLxT
-        if (field === 'dimensi') {
-          // Hilangkan spasi dan standarisasi karakter 'x'
-          const cleanedDimensi = value.replace(/\s+/g, '').toLowerCase().replace(/\*/g, 'x');
-          const parts = cleanedDimensi.split('x');
-          
-          if (parts.length === 3) {
-            const p = parseFloat(parts[0]);
-            const l = parseFloat(parts[1]);
-            const t = parseFloat(parts[2]);
-            
-            if (!isNaN(p) && !isNaN(l) && !isNaN(t)) {
-              // Mengalikan P x L x T dan memformatnya dengan titik ribuan (id-ID)
-              updatedItem.volume = (p * l * t).toLocaleString('id-ID');
-            }
-          }
-        }
-        return updatedItem;
+  <style>
+    @media print {
+      body { background: white !important; }
+      .print-hidden, button.print-hidden { display: none !important; }
+      input, textarea { 
+        border: none !important; 
+        outline: none !important; 
+        box-shadow: none !important; 
+        background: transparent !important;
       }
-      return item;
-    }));
-  };
-
-  const addItem = () => {
-    setItems(prev => [...prev, { 
-      id: Date.now(), sparepart: '', qty: 1, dimensi: '', volume: '', colly: '', keterangan: '' 
-    }]);
-  };
-
-  const removeItem = (id) => {
-    if (items.length > 1) {
-      setItems(prev => prev.filter(item => item.id !== id));
+      input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
     }
-  };
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 text-gray-800 p-4 md:p-8 font-sans">
 
-  const handlePrint = () => {
-    window.print();
-  };
+  <!-- Header & Controls -->
+  <div class="max-w-5xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4 print-hidden">
+    <h1 class="text-2xl font-bold text-gray-700">Sistem Surat Jalan</h1>
+    <div class="flex gap-2 flex-wrap justify-center">
+      <button onclick="toggleConfig()" class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">
+        <i data-lucide="settings" class="w-4 h-4"></i> Konfigurasi
+      </button>
+      <button onclick="handleSubmit()" id="btnSubmit" class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+        <i data-lucide="send" class="w-4 h-4"></i> Simpan ke Sheet
+      </button>
+      <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition">
+        <i data-lucide="printer" class="w-4 h-4"></i> Cetak
+      </button>
+    </div>
+  </div>
 
-  const handleSubmit = async () => {
-    if (!sheetUrl) {
-      alert('Mohon atur URL Web App Google Spreadsheet di menu Konfigurasi (ikon gerigi) terlebih dahulu.');
-      setShowConfig(true);
-      return;
-    }
+  <!-- Config Panel -->
+  <div id="configPanel" class="max-w-5xl mx-auto mb-6 bg-white p-6 rounded-xl shadow-md border-l-4 border-yellow-500 hidden print-hidden">
+    <h2 class="text-lg font-semibold mb-2">Konfigurasi Google Spreadsheet</h2>
+    <p class="text-sm text-gray-600 mb-4">Masukkan URL Web App dari Google Apps Script Anda.</p>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-1 border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+      <button onclick="saveConfig()" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 flex items-center justify-center gap-2">
+        <i data-lucide="save" class="w-4 h-4"></i> Simpan URL
+      </button>
+    </div>
+  </div>
 
-    setIsSubmitting(true);
-    setSubmitStatus(null);
-
-    const payload = {
-      ...formData,
-      items: items
-    };
-
-    try {
-      // Menggunakan mode no-cors untuk menghindari masalah CORS preflight dari browser ke Google Script
-      await fetch(sheetUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
-      
-      setSubmitStatus('success');
-      alert('Data berhasil dikirim ke Spreadsheet!');
-    } catch (error) {
-      console.error('Error submitting data:', error);
-      setSubmitStatus('error');
-      alert('Terjadi kesalahan saat mengirim data. Pastikan URL benar.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 text-gray-800 p-4 md:p-8 font-sans">
-      
-      {/* Header & Controls (Hidden on Print) */}
-      <div className="max-w-5xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4 print:hidden">
-        <h1 className="text-2xl font-bold text-gray-700">Sistem Surat Jalan</h1>
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setShowConfig(!showConfig)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition"
-          >
-            <Settings size={18} />
-            Konfigurasi
-          </button>
-          <button 
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`flex items-center gap-2 px-4 py-2 ${isSubmitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-lg transition`}
-          >
-            <Send size={18} />
-            {isSubmitting ? 'Mengirim...' : 'Simpan ke Sheet'}
-          </button>
-          <button 
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
-          >
-            <Printer size={18} />
-            Cetak
-          </button>
-        </div>
+  <!-- Main Document -->
+  <div class="max-w-5xl mx-auto bg-white p-8 md:p-12 shadow-lg">
+    
+    <!-- Doc Header -->
+    <div class="border-b-2 border-gray-800 pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-bold uppercase tracking-wider text-gray-900">SURAT JALAN</h1>
+        <p class="text-gray-600 mt-1">Dokumen Pengiriman Barang</p>
       </div>
-
-      {/* Configuration Panel (Hidden on Print) */}
-      {showConfig && (
-        <div className="max-w-5xl mx-auto mb-6 bg-white p-6 rounded-xl shadow-md border-l-4 border-yellow-500 print:hidden">
-          <h2 className="text-lg font-semibold mb-2">Konfigurasi Google Spreadsheet</h2>
-          <p className="text-sm text-gray-600 mb-4">Masukkan URL Web App dari Google Apps Script Anda untuk menyimpan data secara otomatis ke Google Sheets.</p>
-          <div className="flex gap-2">
-            <input 
-              type="text" 
-              value={sheetUrl}
-              onChange={(e) => setSheetUrl(e.target.value)}
-              placeholder="https://script.google.com/macros/s/AKfycb.../exec"
-              className="flex-1 border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-            <button 
-              onClick={handleConfigSave}
-              className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900"
-            >
-              Simpan URL
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Document / Printable Area */}
-      <div className="max-w-5xl mx-auto bg-white p-8 md:p-12 shadow-lg print:shadow-none print:p-0">
-        
-        {/* Document Header */}
-        <div className="border-b-2 border-gray-800 pb-4 mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold uppercase tracking-wider text-gray-900">SURAT JALAN</h1>
-            <p className="text-gray-600 mt-1">Dokumen Pengiriman Barang</p>
-          </div>
-          <div className="text-right flex flex-col items-end">
-            {logoError ? (
-              <h2 className="text-4xl font-black text-[#E3000F] tracking-tighter mb-2" style={{ fontFamily: 'Arial, sans-serif' }}>POLYTRON</h2>
-            ) : (
-              <img 
-                src="https://polytron.co.id/wp-content/uploads/2021/08/logo-polytron-red.png" 
-                alt="POLYTRON" 
-                className="h-8 md:h-10 object-contain mb-2 print:h-10"
-                onError={() => setLogoError(true)}
-              />
-            )}
-            <p className="text-sm text-gray-600">Jl. Contoh Alamat Perusahaan No. 123</p>
-            <p className="text-sm text-gray-600">Telp: (021) 1234567 | Email: info@perusahaan.com</p>
-          </div>
-        </div>
-
-        {/* Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="space-y-3">
-            <div className="flex">
-              <span className="w-32 font-semibold">No. Surat Jalan</span>
-              <span className="mr-2">:</span>
-              <input 
-                type="text" 
-                name="noSurat"
-                value={formData.noSurat}
-                onChange={handleFormChange}
-                className="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none print:border-none print:bg-transparent"
-              />
-            </div>
-            <div className="flex">
-              <span className="w-32 font-semibold">Tanggal</span>
-              <span className="mr-2">:</span>
-              <input 
-                type="date" 
-                name="tanggal"
-                value={formData.tanggal}
-                onChange={handleFormChange}
-                className="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none print:border-none print:bg-transparent"
-              />
-            </div>
-            <div className="flex">
-              <span className="w-32 font-semibold">Kendaraan / Plat</span>
-              <span className="mr-2">:</span>
-              <input 
-                type="text" 
-                name="kendaraan"
-                value={formData.kendaraan}
-                onChange={handleFormChange}
-                placeholder="Misal: Truk Box B 1234 XYZ"
-                className="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none print:border-none print:bg-transparent"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-             <div className="flex">
-              <span className="w-32 font-semibold">Kepada Yth.</span>
-              <span className="mr-2">:</span>
-              <input 
-                type="text" 
-                name="penerima"
-                value={formData.penerima}
-                onChange={handleFormChange}
-                placeholder="Nama Penerima / Instansi"
-                className="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none font-bold print:border-none print:bg-transparent"
-              />
-            </div>
-            <div className="flex items-start">
-              <span className="w-32 font-semibold mt-1">Alamat Tujuan</span>
-              <span className="mr-2 mt-1">:</span>
-              <textarea 
-                name="alamatPenerima"
-                value={formData.alamatPenerima}
-                onChange={handleFormChange}
-                rows="2"
-                placeholder="Alamat lengkap pengiriman"
-                className="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none resize-none print:border-none print:bg-transparent"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        {/* Items Table */}
-        <div className="mb-8">
-          <table className="w-full text-left border-collapse border-2 border-black text-sm">
-            <thead>
-              <tr className="bg-[#ff0000] text-white print:bg-[#ff0000] print:text-white" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                <th className="p-2 w-10 text-center border border-black font-bold uppercase">NO</th>
-                <th className="p-2 text-center border border-black font-bold uppercase">SPAREPART BEKAS</th>
-                <th className="p-2 w-12 text-center border border-black font-bold uppercase">QTY</th>
-                <th colSpan="2" className="p-2 w-40 text-center border border-black font-bold uppercase">UKURAN M³</th>
-                <th className="p-2 w-12 text-center border border-black font-bold uppercase">Colly</th>
-                <th className="p-2 text-center border border-black font-bold uppercase">KETERANGAN</th>
-                <th className="p-2 w-10 text-center print:hidden border border-black font-bold">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => (
-                <tr key={item.id} className="border-b border-black group text-[#0055aa]">
-                  <td className="p-1 text-center border border-black font-medium">{index + 1}</td>
-                  <td className="p-1 border border-black">
-                    <input 
-                      type="text"
-                      value={item.sparepart}
-                      onChange={(e) => handleItemChange(item.id, 'sparepart', e.target.value)}
-                      placeholder="Nama sparepart..."
-                      className="w-full bg-transparent outline-none border-b border-transparent focus:border-gray-300 font-medium text-[#0055aa]"
-                    />
-                  </td>
-                  <td className="p-1 border border-black">
-                    <input 
-                      type="number"
-                      value={item.qty}
-                      onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
-                      className="w-full bg-transparent outline-none text-center border-b border-transparent focus:border-gray-300 font-medium text-[#0055aa]"
-                    />
-                  </td>
-                  <td className="p-1 border border-black border-r-black">
-                    <input 
-                      type="text"
-                      value={item.dimensi}
-                      onChange={(e) => handleItemChange(item.id, 'dimensi', e.target.value)}
-                      placeholder="P x L x T"
-                      className="w-full bg-transparent outline-none text-center border-b border-transparent focus:border-gray-300 font-medium text-[#0055aa]"
-                    />
-                  </td>
-                  <td className="p-1 border border-black">
-                    <input 
-                      type="text"
-                      value={item.volume}
-                      onChange={(e) => handleItemChange(item.id, 'volume', e.target.value)}
-                      placeholder="Vol"
-                      className="w-full bg-transparent outline-none text-center border-b border-transparent focus:border-gray-300 font-medium text-[#0055aa]"
-                    />
-                  </td>
-                  <td className="p-1 border border-black">
-                    <input 
-                      type="text"
-                      value={item.colly}
-                      onChange={(e) => handleItemChange(item.id, 'colly', e.target.value)}
-                      className="w-full bg-transparent outline-none text-center border-b border-transparent focus:border-gray-300 font-medium text-[#0055aa]"
-                    />
-                  </td>
-                  <td className="p-1 border border-black">
-                    <input 
-                      type="text"
-                      value={item.keterangan}
-                      onChange={(e) => handleItemChange(item.id, 'keterangan', e.target.value)}
-                      placeholder="No : ... | TGL : ... | PO : ..."
-                      className="w-full bg-transparent outline-none border-b border-transparent focus:border-gray-300 font-medium text-[#0055aa]"
-                    />
-                  </td>
-                  <td className="p-1 text-center print:hidden border border-black">
-                    <button 
-                      onClick={() => removeItem(item.id)}
-                      className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition"
-                      title="Hapus Baris"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          <button 
-            onClick={addItem}
-            className="mt-4 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 print:hidden font-medium"
-          >
-            <Plus size={16} /> Tambah Baris Barang
-          </button>
-        </div>
-
-        {/* Note / Terms */}
-        <div className="mb-12">
-          <p className="text-sm text-gray-600 italic">
-            * Mohon periksa kembali barang yang diterima. Barang yang sudah diterima dalam kondisi baik tidak dapat dikembalikan.
-          </p>
-        </div>
-
-        {/* Signatures */}
-        <div className="grid grid-cols-3 gap-4 text-center mt-8">
-          <div>
-            <p className="mb-16 font-semibold">Penerima,</p>
-            <div className="w-48 border-b border-gray-800 mx-auto"></div>
-            <p className="text-sm mt-1 text-gray-500">(Nama Jelas & Stempel)</p>
-          </div>
-          <div>
-            <p className="mb-16 font-semibold">Pengemudi / Kurir,</p>
-            <div className="w-48 border-b border-gray-800 mx-auto"></div>
-            <p className="text-sm mt-1 text-gray-500">(Nama Jelas)</p>
-          </div>
-          <div>
-            <p className="mb-16 font-semibold">Hormat Kami,</p>
-            <div className="w-48 border-b border-gray-800 mx-auto"></div>
-            <p className="text-sm mt-1 text-gray-500">(Bagian Pengiriman)</p>
-          </div>
-        </div>
-
+      <div class="text-right flex flex-col items-end">
+        <h2 class="text-4xl font-black text-[#E3000F] tracking-tighter mb-2" style="font-family: Arial, sans-serif;">POLYTRON</h2>
+        <p class="text-sm text-gray-600">Jl. Contoh Alamat Perusahaan No. 123</p>
+        <p class="text-sm text-gray-600">Telp: (021) 1234567 | Email: info@perusahaan.com</p>
       </div>
     </div>
-  );
-}
+
+    <!-- Info Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div class="space-y-3">
+        <div class="flex">
+          <span class="w-32 font-semibold">No. Surat Jalan</span><span class="mr-2">:</span>
+          <input type="text" id="noSurat" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none">
+        </div>
+        <div class="flex">
+          <span class="w-32 font-semibold">Tanggal</span><span class="mr-2">:</span>
+          <input type="date" id="tanggal" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none">
+        </div>
+        <div class="flex">
+          <span class="w-32 font-semibold">Kendaraan</span><span class="mr-2">:</span>
+          <input type="text" id="kendaraan" placeholder="Misal: Truk Box B 1234 XYZ" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none">
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex">
+          <span class="w-32 font-semibold">Kepada Yth.</span><span class="mr-2">:</span>
+          <input type="text" id="penerima" placeholder="Nama Penerima / Instansi" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none font-bold">
+        </div>
+        <div class="flex items-start">
+          <span class="w-32 font-semibold mt-1">Alamat Tujuan</span><span class="mr-2 mt-1">:</span>
+          <textarea id="alamatPenerima" rows="2" placeholder="Alamat lengkap pengiriman" class="flex-1 border-b border-dashed border-gray-400 focus:border-blue-500 outline-none resize-none"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-left border-collapse border-2 border-black text-sm" id="itemsTable">
+        <thead>
+          <tr class="bg-red-600 text-white" style="print-color-adjust: exact; -webkit-print-color-adjust: exact;">
+            <th class="p-2 w-10 text-center border border-black font-bold uppercase">NO</th>
+            <th class="p-2 text-center border border-black font-bold uppercase">SPAREPART BEKAS</th>
+            <th class="p-2 w-16 text-center border border-black font-bold uppercase">QTY</th>
+            <th class="p-2 w-20 text-center border border-black font-bold uppercase">UKURAN</th>
+            <th class="p-2 w-20 text-center border border-black font-bold uppercase">M³</th>
+            <th class="p-2 w-16 text-center border border-black font-bold uppercase">COLLY</th>
+            <th class="p-2 text-center border border-black font-bold uppercase">KETERANGAN</th>
+            <th class="p-2 w-10 text-center border border-black font-bold print-hidden">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="itemRows">
+          <!-- Baris akan digenerate via JS -->
+        </tbody>
+      </table>
+      <button onclick="addItem()" class="mt-4 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium print-hidden">
+        <i data-lucide="plus" class="w-4 h-4"></i> Tambah Baris Barang
+      </button>
+    </div>
+
+    <div class="mb-12">
+      <p class="text-sm text-gray-600 italic">* Mohon periksa kembali barang yang diterima. Barang yang sudah diterima dalam kondisi baik tidak dapat dikembalikan.</p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 text-center mt-8">
+      <div><p class="mb-16 font-semibold">Penerima,</p><div class="w-48 border-b border-gray-800 mx-auto"></div><p class="text-sm mt-1 text-gray-500">(Nama Jelas & Stempel)</p></div>
+      <div><p class="mb-16 font-semibold">Pengemudi,</p><div class="w-48 border-b border-gray-800 mx-auto"></div><p class="text-sm mt-1 text-gray-500">(Nama Jelas)</p></div>
+      <div><p class="mb-16 font-semibold">Hormat Kami,</p><div class="w-48 border-b border-gray-800 mx-auto"></div><p class="text-sm mt-1 text-gray-500">(Bagian Pengiriman)</p></div>
+    </div>
+  </div>
+
+  <script>
+    // Inisialisasi Ikon Lucide
+    lucide.createIcons();
+
+    let items = [];
+    let nextId = 1;
+
+    // Inisialisasi Form Dasar
+    function initForm() {
+      const today = new Date();
+      const noSurat = `SJ-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
+      document.getElementById('noSurat').value = noSurat;
+      document.getElementById('tanggal').value = today.toISOString().split('T')[0];
+      
+      addItem(); // Tambah baris awal
+    }
+
+    function addItem() {
+      items.push({ id: nextId++, sparepart: '', qty: 1, dimensi: '', volume: '', colly: '', keterangan: '' });
+      renderTable();
+    }
+
+    function removeItem(id) {
+      if (items.length > 1) {
+        items = items.filter(item => item.id !== id);
+        renderTable();
+      }
+    }
+
+    function handleItemChange(id, field, value) {
+      items = items.map(item => {
+        if (item.id === id) {
+          let updatedItem = { ...item, [field]: value };
+          
+          if (field === 'dimensi') {
+            const cleanedDimensi = value.replace(/\s+/g, '').toLowerCase().replace(/\*/g, 'x');
+            const parts = cleanedDimensi.split('x');
+            if (parts.length === 3) {
+              const p = parseFloat(parts[0]);
+              const l = parseFloat(parts[1]);
+              const t = parseFloat(parts[2]);
+              if (!isNaN(p) && !isNaN(l) && !isNaN(t)) {
+                updatedItem.volume = (p * l * t).toLocaleString('id-ID');
+              }
+            }
+          }
+          return updatedItem;
+        }
+        return item;
+      });
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('itemRows');
+      tbody.innerHTML = items.map((item, index) => `
+        <tr class="border-b border-black text-blue-800">
+          <td class="p-1 text-center border border-black font-medium">${index + 1}</td>
+          <td class="p-1 border border-black"><input type="text" value="${item.sparepart}" onchange="handleItemChange(${item.id}, 'sparepart', this.value)" class="w-full bg-transparent outline-none px-1 font-medium"></td>
+          <td class="p-1 border border-black"><input type="number" value="${item.qty}" min="1" onchange="
