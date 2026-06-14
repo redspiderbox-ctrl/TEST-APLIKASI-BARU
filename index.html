@@ -150,8 +150,8 @@
       font-weight: 600;
       box-shadow: 0 4px 12px var(--primary-glow);
     }
-    .sidebar-menu li.logout-btn { color: #f87171; margin-top: auto; }
-    .sidebar-menu li.logout-btn:hover { background: rgba(248,113,113,0.1); }
+    .sidebar-menu li.logout-btn { color: #f87171; margin-top: 16px; }
+    .sidebar-menu li.logout-btn:hover { background: rgba(248,113,113,0.1); color: #fecaca; }
     .sidebar-footer {
       padding: 16px 20px;
       border-top: 1px solid rgba(255,255,255,0.06);
@@ -415,9 +415,8 @@
       <ul class="sidebar-menu" style="margin-top:0;">
         <li onclick="showPage('reports', this)"><i class="bi bi-graph-up-arrow"></i> Laporan</li>
         <li onclick="showPage('history', this)"><i class="bi bi-clock-history"></i> Riwayat Transaksi</li>
-      </ul>
-      <ul class="sidebar-menu" style="flex:0;">
-        <li class="logout-btn" onclick="handleLogout()"><i class="bi bi-box-arrow-left"></i> Logout</li>
+        <!-- Tombol Logout/Keluar dipindahkan ke bawah Riwayat Transaksi -->
+        <li class="logout-btn" onclick="handleLogout()"><i class="bi bi-box-arrow-left"></i> Keluar (Logout)</li>
       </ul>
       <div class="sidebar-footer">Powered by Firebase Realtime DB</div>
     </nav>
@@ -866,9 +865,9 @@
     }
 
     function handleLogout() {
-      if (confirm('Yakin ingin logout?')) {
+      if (confirm('Yakin ingin keluar?')) {
         auth.signOut();
-        showToast('Berhasil logout', 'info');
+        showToast('Berhasil keluar dari sistem', 'info');
       }
     }
 
@@ -884,7 +883,6 @@
       } else {
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('app-screen').style.display = 'none';
-        // Hentikan semua listener
         db.ref('products').off();
         db.ref('categories').off();
         db.ref('transactions').off();
@@ -902,7 +900,6 @@
     function initRealtimeListeners() {
       showLoading(true);
 
-      // Listener Produk - sinkronisasi realtime dari Firebase
       db.ref('products').on('value', (snapshot) => {
         showSync();
         appData.products = [];
@@ -918,7 +915,6 @@
         showLoading(false);
       });
 
-      // Listener Kategori
       db.ref('categories').on('value', (snapshot) => {
         showSync();
         appData.categories = [];
@@ -932,7 +928,6 @@
         showToast('Gagal sinkronisasi kategori: ' + error.message, 'error');
       });
 
-      // Listener Transaksi
       db.ref('transactions').on('value', (snapshot) => {
         showSync();
         appData.transactions = [];
@@ -942,7 +937,6 @@
           appData.transactions.push(t);
           historyDataGlobal.push(t);
         });
-        // Urutkan dari terbaru
         historyDataGlobal.sort((a, b) => b.timestamp - a.timestamp);
 
         renderDashboard();
@@ -956,7 +950,6 @@
         showLoading(false);
       });
 
-      // Monitor koneksi Firebase
       db.ref('.info/connected').on('value', (snap) => {
         const statusEl = document.getElementById('sync-status');
         if (snap.val() === true) {
@@ -977,7 +970,6 @@
       if (element) element.classList.add('active');
       document.getElementById('sidebar').classList.remove('show');
 
-      // Render halaman aktif dari data memori (sangat cepat)
       if (page === 'dashboard') renderDashboard();
       if (page === 'pos') renderPosProducts();
       if (page === 'products') renderProducts();
@@ -999,7 +991,6 @@
       const start = document.getElementById('dash-start')?.value;
       const end = document.getElementById('dash-end')?.value;
 
-      // Hitung data produk
       appData.products.forEach(p => {
         modalGudang += (p.modal * p.stok);
         totalQtyStok += p.stok;
@@ -1007,7 +998,6 @@
         if (p.stok <= 5 && p.stok > 0) lowStockProducts.push({ nama: p.nama, stok: p.stok });
       });
 
-      // Hitung data transaksi berdasarkan filter
       appData.transactions.forEach(t => {
         const tDate = new Date(t.timestamp).toISOString().split('T')[0];
         const isInRange = (!start || tDate >= start) && (!end || tDate <= end);
@@ -1024,13 +1014,11 @@
         }
       });
 
-      // Produk terlaris
       let topProducts = Object.keys(productSales)
         .map(nama => ({ nama, qty: productSales[nama] }))
         .sort((a, b) => b.qty - a.qty)
         .slice(0, 5);
 
-      // Update DOM stat cards
       document.getElementById('dash-pendapatan').textContent = formatRp(pendapatan);
       document.getElementById('dash-laba').textContent = formatRp(laba);
       document.getElementById('dash-trx').textContent = totalTrx;
@@ -1039,7 +1027,6 @@
       document.getElementById('dash-qty').textContent = totalQtyStok;
       document.getElementById('dash-habis').textContent = stokHabis;
 
-      // Stok minimum
       const lowStockDiv = document.getElementById('dash-low-stock');
       lowStockDiv.innerHTML = lowStockProducts.length > 0
         ? lowStockProducts.map(p =>
@@ -1050,7 +1037,6 @@
           ).join('')
         : '<p class="text-muted text-center mb-0" style="font-size:0.88rem;">Semua stok aman</p>';
 
-      // Produk terlaris
       const topProdDiv = document.getElementById('dash-top-products');
       topProdDiv.innerHTML = topProducts.length > 0
         ? topProducts.map((p, i) =>
@@ -1061,7 +1047,6 @@
           ).join('')
         : '<p class="text-muted text-center mb-0" style="font-size:0.88rem;">Belum ada penjualan</p>';
 
-      // Grafik 7 hari terakhir
       const now = new Date();
       const chartLabels = [];
       const chartData = [];
@@ -1154,7 +1139,6 @@
       document.getElementById('prod-modal').value = data ? data.modal : '';
       document.getElementById('prod-jual').value = data ? data.jual : '';
 
-      // Isi dropdown kategori dari Firebase
       const catSelect = document.getElementById('prod-kategori');
       catSelect.innerHTML = '<option value="" disabled selected>Pilih Kategori</option>' +
         appData.categories.map(c => `<option value="${c.nama}" ${data && data.kategori === c.nama ? 'selected' : ''}>${c.nama}</option>`).join('');
@@ -1174,7 +1158,6 @@
         jual: Number(document.getElementById('prod-jual').value)
       };
 
-      // Validasi dasar
       if (!data.nama || !data.kategori || isNaN(data.stok) || isNaN(data.modal) || isNaN(data.jual)) {
         showToast('Semua field wajib diisi dengan benar!', 'error');
         return;
@@ -1399,7 +1382,6 @@
 
       showSync();
       try {
-        // Atomic update: simpan transaksi & kurangi stok sekaligus
         const updates = {};
         updates['/transactions/' + idTrx] = transactionData;
 
