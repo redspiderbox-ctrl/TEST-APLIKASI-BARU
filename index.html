@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>POS Kasir Modern - Firebase</title>
+  <title>POS Kasir Modern - Firebase Auth</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -101,8 +101,8 @@
   <!-- ==================== LOGIN SCREEN ==================== -->
   <div id="login-screen">
     <div class="login-card">
-      <div class="text-center mb-4"><i class="bi bi-shop" style="font-size: 3rem; color: var(--primary);"></i><h3 class="mt-2 fw-bold">POS Kasir Modern</h3><p class="text-muted">Silakan login untuk melanjutkan</p></div>
-      <div class="form-floating mb-3"><input type="text" class="form-control form-control-lg" id="login-user" placeholder="Username"><label for="login-user">Username</label></div>
+      <div class="text-center mb-4"><i class="bi bi-shop" style="font-size: 3rem; color: var(--primary);"></i><h3 class="mt-2 fw-bold">POS Kasir Modern</h3><p class="text-muted">Login menggunakan Akun Firebase Auth</p></div>
+      <div class="form-floating mb-3"><input type="email" class="form-control form-control-lg" id="login-email" placeholder="Email"><label for="login-email">Email</label></div>
       <div class="form-floating mb-4"><input type="password" class="form-control form-control-lg" id="login-pass" placeholder="Password"><label for="login-pass">Password</label></div>
       <button class="btn btn-primary w-100 btn-lg" onclick="handleLogin()">Login</button>
       <div id="login-error" class="text-danger text-center mt-3" style="display:none;"></div>
@@ -216,6 +216,7 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   
   <script>
     // ==================== KONFIGURASI FIREBASE ====================
@@ -232,6 +233,7 @@
     // Inisialisasi Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
     // ==================== VARIABEL GLOBAL ====================
     let appData = { products: [], categories: [], transactions: [] };
@@ -240,43 +242,70 @@
     let historyDataGlobal = []; 
     let currentReceiptData = null;
 
-    // Bersihkan form login saat memuat
-    window.onload = function() {
-      document.getElementById('login-user').value = '';
-      document.getElementById('login-pass').value = '';
-    };
+    // ==================== AUTENTIKASI FIREBASE AUTH ====================
+    function handleLogin() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-pass').value;
+      
+      if(!email || !password) {
+        document.getElementById('login-error').textContent = 'Email dan Password wajib diisi!';
+        document.getElementById('login-error').style.display = 'block';
+        return;
+      }
 
-    // ==================== AUTENTIKASI (LOGIN) ====================
-    // CATATAN: Untuk keamanan lebih baik, gunakan Firebase Auth. 
-    // Ini adalah simulasi login mengecek database.
-    async function handleLogin() {
-      const u = document.getElementById('login-user').value;
-      const p = document.getElementById('login-pass').value;
       showLoading(true);
       
-      try {
-        const snapshot = await db.ref('users/' + u).once('value');
-        if (snapshot.exists() && snapshot.val().password === p) {
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Berhasil login
+          document.getElementById('login-error').style.display = 'none';
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('app-screen').style.display = 'block';
           loadInitialData();
-        } else {
-          document.getElementById('login-error').textContent = 'Username atau Password salah!';
+        })
+        .catch((error) => {
+          // Gagal login
+          let message = "Login gagal! ";
+          if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            message += "Email atau Password salah.";
+          } else if(error.code === 'auth/invalid-email') {
+            message += "Format email tidak valid.";
+          } else {
+            message += error.message;
+          }
+          document.getElementById('login-error').textContent = message;
           document.getElementById('login-error').style.display = 'block';
-        }
-      } catch (error) {
-        alert('Error koneksi Firebase: ' + error.message);
-      } finally {
-        showLoading(false);
-      }
+          showLoading(false);
+        });
     }
 
     function handleLogout() { 
-      document.getElementById('app-screen').style.display = 'none'; 
-      document.getElementById('login-screen').style.display = 'flex'; 
-      document.getElementById('login-user').value = ''; 
-      document.getElementById('login-pass').value = ''; 
+      auth.signOut().then(() => {
+        document.getElementById('app-screen').style.display = 'none'; 
+        document.getElementById('login-screen').style.display = 'flex'; 
+        document.getElementById('login-email').value = ''; 
+        document.getElementById('login-pass').value = ''; 
+        showLoading(false);
+      }).catch((error) => {
+        alert("Gagal logout: ", error.message);
+      });
     }
+
+    // Cek status login otomatis saat halaman dimuat
+    auth.onAuthStateChanged((user) => {
+      showLoading(true);
+      if (user) {
+        // User sudah login
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'block';
+        loadInitialData();
+      } else {
+        // User belum login
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('app-screen').style.display = 'none';
+        showLoading(false);
+      }
+    });
 
     // ==================== LOAD DATA DARI FIREBASE ====================
     async function loadInitialData() { 
@@ -284,9 +313,11 @@
       try {
         const prodSnapshot = await db.ref('products').once('value');
         const catSnapshot = await db.ref('categories').once('value');
+        const trxSnapshot = await db.ref('transactions').once('value');
         
         appData.products = [];
         appData.categories = [];
+        appData.transactions = [];
 
         prodSnapshot.forEach(child => {
           appData.products.push({ fbKey: child.key, ...child.val() });
@@ -294,6 +325,10 @@
 
         catSnapshot.forEach(child => {
           appData.categories.push({ fbKey: child.key, ...child.val() });
+        });
+
+        trxSnapshot.forEach(child => {
+          appData.transactions.push(child.val());
         });
 
         renderDashboard(); 
@@ -322,7 +357,6 @@
 
     // ==================== DASHBOARD ====================
     function renderDashboard() { 
-      // Kalkulasi Dashboard dari data lokal yang sudah di download
       let pendapatan = 0, laba = 0, totalTrx = 0, modalGudang = 0, totalQtyStok = 0, stokHabis = 0;
       let lowStockProducts = [];
       let productSales = {};
@@ -334,7 +368,6 @@
         if(p.stok <= 5 && p.stok > 0) lowStockProducts.push({nama: p.nama, stok: p.stok});
       });
 
-      // Proses Transaksi
       const now = new Date();
       const chartLabels = [];
       const chartData = [];
@@ -692,7 +725,7 @@
           const isInRange = (!start || tDate >= start) && (!end || tDate <= end);
           
           if(isInRange) {
-            let periodeKey = tDate; // Harian default
+            let periodeKey = tDate; 
             totalTrx++;
             totalPendapatan += t.total;
             
@@ -739,7 +772,6 @@
         historyDataGlobal = [];
         snapshot.forEach(child => historyDataGlobal.push(child.val()));
         
-        // Sortir berdasarkan waktu terbaru
         historyDataGlobal.sort((a, b) => b.timestamp - a.timestamp);
 
         renderHistoryTable(historyDataGlobal); 
