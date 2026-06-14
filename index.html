@@ -1,1 +1,1161 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kalkulasi Pembelian DOGE</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --card: rgba(255,255,255,0.04);
+    --card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --fg: #e8e6e3;
+    --fg-muted: #6b6a7a;
+    --accent: #c2a633;
+    --accent-glow: rgba(194,166,51,0.25);
+    --accent-soft: rgba(194,166,51,0.1);
+    --green: #00e676;
+    --green-glow: rgba(0,230,118,0.2);
+    --green-bg: rgba(0,230,118,0.08);
+    --red: #ff5252;
+    --red-glow: rgba(255,82,82,0.2);
+    --red-bg: rgba(255,82,82,0.08);
+    --input-bg: rgba(255,255,255,0.03);
+    --shadow: rgba(0,0,0,0.4);
+    --particle-color: 194, 166, 51;
+    --particle-line: rgba(194, 166, 51, 0.06);
+    --blob-a: rgba(194,166,51,0.22);
+    --blob-b: rgba(0,230,118,0.06);
+    --blob-c: rgba(194,166,51,0.1);
+    --table-hover: rgba(255,255,255,0.03);
+    --thead-bg: rgba(255,255,255,0.02);
+    --scrollbar: rgba(255,255,255,0.1);
+    --scrollbar-hover: rgba(255,255,255,0.2);
+    --toast-bg: rgba(18,18,26,0.95);
+    --toggle-bg: #1e1e2e;
+    --toggle-dot: #c2a633;
+    --doge-primary: #c2a633;
+    --running-glow: rgba(194,166,51,0.35);
+  }
 
+  :root.light {
+    --bg: #f4f1ec;
+    --bg2: #ffffff;
+    --card: rgba(255,255,255,0.7);
+    --card-hover: rgba(255,255,255,0.9);
+    --border: rgba(0,0,0,0.08);
+    --fg: #1a1a2e;
+    --fg-muted: #7a7a8e;
+    --accent: #9e8424;
+    --accent-glow: rgba(158,132,36,0.15);
+    --accent-soft: rgba(158,132,36,0.08);
+    --green: #00894a;
+    --green-glow: rgba(0,137,74,0.12);
+    --green-bg: rgba(0,137,74,0.06);
+    --red: #d32f2f;
+    --red-glow: rgba(211,47,47,0.12);
+    --red-bg: rgba(211,47,47,0.06);
+    --input-bg: rgba(255,255,255,0.8);
+    --shadow: rgba(0,0,0,0.08);
+    --particle-color: 158, 132, 36;
+    --particle-line: rgba(158, 132, 36, 0.04);
+    --blob-a: rgba(220,190,70,0.18);
+    --blob-b: rgba(0,180,100,0.06);
+    --blob-c: rgba(220,190,70,0.08);
+    --table-hover: rgba(0,0,0,0.02);
+    --thead-bg: rgba(0,0,0,0.02);
+    --scrollbar: rgba(0,0,0,0.12);
+    --scrollbar-hover: rgba(0,0,0,0.25);
+    --toast-bg: rgba(255,255,255,0.95);
+    --toggle-bg: #e0ddd6;
+    --toggle-dot: #9e8424;
+    --doge-primary: #9e8424;
+    --running-glow: rgba(158,132,36,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    transition: background 0.5s ease, color 0.5s ease;
+  }
+
+  #particleCanvas {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events: none; z-index: 0;
+  }
+
+  .glow-blob {
+    position: fixed; border-radius: 50%; filter: blur(120px);
+    pointer-events: none; z-index: 0;
+    transition: background 0.6s ease;
+  }
+  .glow-blob.a { width:500px; height:500px; background:var(--blob-a); top:-150px; right:-100px; animation: blobFloat 12s ease-in-out infinite; }
+  .glow-blob.b { width:400px; height:400px; background:var(--blob-b); bottom:-100px; left:-80px; animation: blobFloat 15s ease-in-out infinite reverse; }
+  .glow-blob.c { width:300px; height:300px; background:var(--blob-c); top:50%; left:50%; transform:translate(-50%,-50%); animation: blobPulse 8s ease-in-out infinite; }
+
+  @keyframes blobFloat {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-20px) scale(1.1); }
+    66% { transform: translate(-20px,30px) scale(0.95); }
+  }
+  @keyframes blobPulse {
+    0%,100% { opacity:0.5; transform:translate(-50%,-50%) scale(1); }
+    50% { opacity:1; transform:translate(-50%,-50%) scale(1.2); }
+  }
+
+  .app-wrapper {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px;
+  }
+
+  .app-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 28px; flex-wrap: wrap;
+  }
+
+  .logo-container {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.5s;
+  }
+  .logo-container:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+
+  .doge-logo-svg {
+    width: 42px; height: 42px;
+    filter: drop-shadow(0 0 6px var(--accent-glow));
+    transition: transform 0.3s, filter 0.3s;
+  }
+  .logo-container:hover .doge-logo-svg {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px var(--accent-glow));
+  }
+
+  .header-text h1 {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700; letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.5s;
+  }
+  .header-text .subtitle { font-size:13px; color:var(--fg-muted); margin-top:2px; transition: color 0.5s; }
+
+  .header-actions { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+  .theme-toggle {
+    position: relative;
+    width: 52px; height: 28px;
+    background: var(--toggle-bg);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.4s, border-color 0.4s;
+    flex-shrink: 0;
+  }
+  .theme-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--toggle-dot);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    transition: transform 0.4s cubic-bezier(0.68, -0.2, 0.27, 1.2), background 0.4s;
+  }
+  .theme-toggle.light::after { transform: translateX(24px); }
+  .theme-toggle .toggle-icons {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 6px; pointer-events: none; font-size: 12px;
+  }
+  .toggle-icons .icon-moon { color: var(--fg-muted); transition: opacity 0.3s; }
+  .toggle-icons .icon-sun { color: var(--fg-muted); transition: opacity 0.3s; }
+  .theme-toggle:not(.light) .icon-sun { opacity: 0.3; }
+  .theme-toggle.light .icon-moon { opacity: 0.3; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 10px;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--card); color: var(--fg);
+    cursor: pointer; transition: all 0.25s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--card-hover); border-color: rgba(128,128,128,0.15); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.primary { background: var(--accent); color:#000; border-color: var(--accent); }
+  .btn.primary:hover { filter: brightness(1.15); box-shadow: 0 4px 20px var(--accent-glow); }
+
+  .input-field {
+    padding: 9px 14px; border-radius: 10px;
+    font-family: inherit; font-size: 13px;
+    border: 1px solid var(--border);
+    background: var(--input-bg); color: var(--fg);
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.5s, color 0.5s;
+    outline: none; width: 100%;
+  }
+  .input-field::placeholder { color: var(--fg-muted); }
+  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor:pointer; }
+  :root.light input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
+
+  .form-bar {
+    display: grid;
+    grid-template-columns: 100px 150px 1fr 1fr auto;
+    gap: 10px; align-items: end;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    transition: background 0.5s, border-color 0.5s;
+  }
+  .form-bar .field-group label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--fg-muted); margin-bottom: 5px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    transition: color 0.5s;
+  }
+
+  .glass-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    transition: background 0.5s, border-color 0.5s;
+  }
+  .glass-card:hover { border-color: rgba(128,128,128,0.15); }
+
+  .table-wrapper { margin-bottom: 20px; }
+  .table-wrapper table { width:100%; border-collapse:collapse; }
+  .table-wrapper th {
+    padding: 12px 14px; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--fg-muted); text-align: center;
+    background: var(--thead-bg);
+    border-bottom: 1px solid var(--border);
+    transition: color 0.5s, background 0.5s;
+  }
+  .table-wrapper td {
+    padding: 12px 14px; text-align: center; font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--fg);
+    transition: color 0.5s, border-color 0.5s;
+  }
+  .table-wrapper tbody tr { transition: background 0.2s; }
+  .table-wrapper tbody tr:hover { background: var(--table-hover); }
+  .table-wrapper .td-date { font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--fg-muted); }
+
+  .lock-toggle { cursor:pointer; font-size:14px; transition:color 0.2s; }
+  .lock-toggle.locked { color: var(--accent); }
+  .lock-toggle.unlocked { color: var(--fg-muted); }
+  .lock-toggle:hover { color: var(--accent); }
+
+  .del-btn {
+    background:none; border:none; color:var(--fg-muted);
+    cursor:pointer; font-size:14px; transition:color 0.2s, transform 0.2s;
+    padding:4px;
+  }
+  .del-btn:hover { color:var(--red); transform:scale(1.2); }
+
+  .empty-state {
+    padding: 48px 20px; text-align: center; color: var(--fg-muted);
+    transition: color 0.5s;
+  }
+  .empty-state i { font-size:36px; margin-bottom:12px; display:block; opacity:0.3; }
+  .empty-state p { font-size:14px; }
+
+  .pagination {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding: 14px;
+  }
+  .pagination .page-btn {
+    width:36px; height:36px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--card); border:1px solid var(--border);
+    color: var(--fg-muted); cursor:pointer; font-size:13px;
+    transition: all 0.2s;
+  }
+  .pagination .page-btn:hover:not(:disabled) { background: var(--card-hover); color:var(--fg); }
+  .pagination .page-btn:disabled { opacity:0.3; cursor:not-allowed; }
+  .pagination .page-info { font-size:13px; color:var(--fg-muted); min-width:80px; text-align:center; transition: color 0.5s; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px; margin-bottom: 20px;
+  }
+  .stat-card {
+    padding: 18px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, background 0.5s;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity:0; transition:opacity 0.3s;
+  }
+  .stat-card:hover { border-color: rgba(128,128,128,0.15); transform: translateY(-2px); box-shadow: 0 8px 30px var(--shadow); }
+  .stat-card:hover::before { opacity:1; }
+  .stat-card.profit-card::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+  .stat-card.loss-card::before { background: linear-gradient(90deg, transparent, var(--red), transparent); }
+
+  .stat-card.running-card {
+    border-color: rgba(194,166,51,0.2);
+    background: linear-gradient(135deg, var(--card) 0%, var(--accent-soft) 100%);
+  }
+  .stat-card.running-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 8px 30px var(--running-glow), 0 0 40px var(--accent-glow);
+  }
+  .stat-card.running-card::before {
+    background: linear-gradient(90deg, var(--accent), rgba(194,166,51,0.3), var(--accent));
+    opacity: 1;
+    height: 3px;
+  }
+  .stat-card.running-card .running-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+    color: var(--accent);
+    animation: runningBounce 2s ease-in-out infinite;
+  }
+  @keyframes runningBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  .stat-card.running-card .stat-value {
+    font-size: 17px;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--fg-muted); margin-bottom: 8px;
+    transition: color 0.5s;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px; font-weight: 600; color: var(--fg);
+    word-break: break-all;
+    transition: color 0.5s;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .status-badge.profit {
+    background: var(--green-bg);
+    color: var(--green);
+    border: 1px solid var(--green-glow);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+  .status-badge.loss {
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid var(--red-glow);
+    box-shadow: 0 0 12px var(--red-glow);
+  }
+  .status-badge.neutral {
+    background: var(--accent-soft);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+  .status-badge i {
+    font-size: 11px;
+    transition: transform 0.3s;
+  }
+  .status-badge.profit i { animation: badgePulse 1.5s ease-in-out infinite; }
+  .status-badge.loss i { animation: badgeShake 2s ease-in-out infinite; }
+  
+  @keyframes badgePulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+  @keyframes badgeShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-2px); }
+    40% { transform: translateX(2px); }
+    60% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+  }
+
+  .no-wrap-value {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    word-break: normal;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+    padding-bottom: 2px;
+    margin-bottom: -2px;
+  }
+  .no-wrap-value::-webkit-scrollbar { height: 3px; }
+  .no-wrap-value::-webkit-scrollbar-track { background: transparent; }
+  .no-wrap-value::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 2px; }
+
+  .stat-sub { font-size:11px; color:var(--fg-muted); margin-top:4px; transition: color 0.5s; }
+
+  .stat-card .manual-input { margin-top: 6px; }
+  .stat-card .manual-input .input-field {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; text-align: center;
+  }
+
+  .toast-container {
+    position: fixed; bottom:24px; right:24px; z-index:9999;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .toast {
+    padding: 12px 20px; border-radius: 12px;
+    background: var(--toast-bg); border: 1px solid var(--border);
+    color: var(--fg); font-size: 13px; font-weight: 500;
+    box-shadow: 0 8px 30px var(--shadow);
+    display: flex; align-items: center; gap: 10px;
+    animation: toastIn 0.4s cubic-bezier(0.22,1,0.36,1);
+    backdrop-filter: blur(20px);
+    transition: background 0.5s, color 0.5s, border-color 0.5s;
+  }
+  .toast.success { border-color: var(--green); }
+  .toast.success i { color: var(--green); }
+  .toast.error { border-color: var(--red); }
+  .toast.error i { color: var(--red); }
+  .toast.info { border-color: var(--accent); }
+  .toast.info i { color: var(--accent); }
+  .toast.out { animation: toastOut 0.3s ease forwards; }
+
+  @keyframes toastIn { from { opacity:0; transform:translateY(20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes toastOut { to { opacity:0; transform:translateY(10px) scale(0.95); } }
+
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--scrollbar); border-radius:3px; transition: background 0.5s; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--scrollbar-hover); }
+
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  input[type=number] { -moz-appearance:textfield; }
+
+  .fade-up {
+    opacity: 0; transform: translateY(16px);
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .fade-up:nth-child(1) { animation-delay: 0s; }
+  .fade-up:nth-child(2) { animation-delay: 0.08s; }
+  .fade-up:nth-child(3) { animation-delay: 0.16s; }
+  .fade-up:nth-child(4) { animation-delay: 0.24s; }
+  .fade-up:nth-child(5) { animation-delay: 0.32s; }
+  .fade-up:nth-child(6) { animation-delay: 0.38s; }
+  .fade-up:nth-child(7) { animation-delay: 0.44s; }
+
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+  @keyframes rowSlideIn {
+    from { opacity:0; transform:translateX(-10px); }
+    to { opacity:1; transform:translateX(0); }
+  }
+  .row-enter { animation: rowSlideIn 0.35s ease forwards; }
+
+  .sync-badge {
+    font-size: 10px;
+    background: var(--green-bg);
+    color: var(--green);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    display: none;
+  }
+
+  @media (max-width: 700px) {
+    .form-bar { grid-template-columns: 1fr 1fr; }
+    .form-bar .field-group:first-child { grid-column: 1 / -1; }
+    .form-bar .field-group:nth-child(5) { grid-column: 1 / -1; }
+    .form-bar .btn.primary { width:100%; justify-content:center; }
+    .header-actions { width:100%; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .app-header { gap:12px; }
+  }
+  @media (max-width: 420px) {
+    .summary-grid { grid-template-columns: 1fr; }
+    .form-bar { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+<div class="glow-blob a"></div>
+<div class="glow-blob b"></div>
+<div class="glow-blob c"></div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-wrapper">
+
+  <header class="app-header">
+    <div class="logo-container" title="Dogecoin">
+      <svg class="doge-logo-svg" viewBox="0 0 383 383" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="191.5" cy="191.5" r="191.5" fill="#c2a633"/>
+        <circle cx="191.5" cy="191.5" r="175" fill="#ba9f33"/>
+        <circle cx="191.5" cy="191.5" r="175" fill="none" stroke="#a89030" stroke-width="2"/>
+        <text x="191.5" y="270" text-anchor="middle" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="260" fill="#ffffff">&#x00D0;</text>
+        <rect x="80" y="195" width="180" height="28" rx="4" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Kalkulasi Pembelian DOGE <span class="sync-badge" id="syncBadge">LIVE SYNC</span></h1>
+      <p class="subtitle">Portfolio tracker & profit/loss calculator (Firebase Integrated)</p>
+    </div>
+    <div class="header-actions">
+      <div class="theme-toggle" id="themeToggle" role="switch" tabindex="0" aria-checked="false" aria-label="Ganti mode terang atau gelap">
+        <span class="toggle-icons">
+          <i class="fa-solid fa-moon icon-moon"></i>
+          <i class="fa-solid fa-sun icon-sun"></i>
+        </span>
+      </div>
+      <button class="btn" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+    </div>
+  </header>
+
+  <section class="form-bar glass-card fade-up" aria-label="Form input pembelian">
+    <div class="field-group">
+      <label for="coinName">Coin</label>
+      <input type="text" id="coinName" class="input-field" placeholder="DOGE" value="DOGE">
+    </div>
+    <div class="field-group">
+      <label for="tglBeli">Tanggal</label>
+      <input type="date" id="tglBeli" class="input-field">
+    </div>
+    <div class="field-group">
+      <label for="hargaBeli">Harga per Coin</label>
+      <input type="number" id="hargaBeli" class="input-field" placeholder="Contoh: 4500">
+    </div>
+    <div class="field-group">
+      <label for="totalBeli">Total Harga Beli</label>
+      <input type="number" id="totalBeli" class="input-field" placeholder="Contoh: 500000">
+    </div>
+    <div class="field-group">
+      <label>&nbsp;</label>
+      <button class="btn primary" onclick="tambahData()" style="width:100%;justify-content:center;height:40px;">
+        <i class="fa-solid fa-plus"></i> Tambah
+      </button>
+    </div>
+  </section>
+
+  <section class="glass-card table-wrapper fade-up" aria-label="Tabel riwayat pembelian">
+    <table id="buyTable" role="table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Tanggal Beli</th>
+          <th>Harga Saat Beli</th>
+          <th>Total Harga Beli</th>
+          <th>Jumlah Beli</th>
+          <th>Opsi</th>
+        </tr>
+      </thead>
+      <tbody id="buyTbody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState">
+      <i class="fa-solid fa-coins"></i>
+      <p>Belum ada data pembelian DOGE. Mulai tambahkan di atas.</p>
+    </div>
+    <div class="pagination" id="paginationArea" style="display:none;">
+      <button class="page-btn" id="prevBtn" onclick="prevPage()" aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
+      <span class="page-info" id="pageInfo">0 / 0</span>
+      <button class="page-btn" id="nextBtn" onclick="nextPage()" aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </section>
+
+  <section class="summary-grid" aria-label="Ringkasan portfolio">
+    <div class="stat-card fade-up">
+      <div class="stat-label">Total Jumlah Beli</div>
+      <div class="stat-value" id="totalQtyBuy">0</div>
+      <div class="stat-sub" id="unitLbl">DOGE</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">Total Modal</div>
+      <div class="stat-value" id="totalModal">Rp 0</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">Harga Rata-Rata</div>
+      <div class="stat-value" id="avgBuyPrice">Rp 0</div>
+      <div class="stat-sub">per DOGE</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">Harga Saat Ini (Manual)</div>
+      <div class="manual-input">
+        <input type="number" id="manualInput" class="input-field" placeholder="isi angka">
+      </div>
+    </div>
+    <div class="stat-card fade-up" id="profitCard">
+      <div class="stat-label">Untung / Rugi</div>
+      <div class="status-badge neutral" id="statusBadge">
+        <i class="fa-solid fa-minus"></i>
+        <span id="statusText">MENUNGGU</span>
+      </div>
+      <div class="stat-value no-wrap-value" id="profitLoss">Rp 0</div>
+      <div class="stat-sub" id="profitPct">0%</div>
+    </div>
+    <div class="stat-card running-card fade-up" id="runningCard">
+      <div class="running-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      <div class="stat-label">Total Harga Berjalan</div>
+      <div class="stat-value no-wrap-value" id="runningTotal">Rp 0</div>
+      <div class="stat-sub" id="runningSub">Modal + Untung/Rugi</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">Terakhir Update</div>
+      <div class="stat-value" id="lastUpdate" style="font-size:13px;">-</div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAcXntJOT1qjXLV3ILq3IUa_fw_zEQY8AI",
+    authDomain: "aplikasi-pos-abd8c.firebaseapp.com",
+    projectId: "aplikasi-pos-abd8c",
+    storageBucket: "aplikasi-pos-abd8c.firebasestorage.app",
+    messagingSenderId: "206370350102",
+    appId: "1:206370350102:web:b09cd223d3d635f5220137"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const docRef = doc(db, "portfolio", "doge_data");
+
+  // Ekspos fungsi dan variabel ke global agar bisa diakses HTML onclick
+  window.db = db;
+  window.docRef = docRef;
+  window.setDoc = setDoc;
+  window.onSnapshot = onSnapshot;
+
+  // Inisialisasi aplikasi setelah Firebase siap
+  initFirebaseSync();
+  window.initParticles && window.initParticles();
+</script>
+
+<script>
+/* ==========================================
+   PARTIKEL
+   ========================================== */
+var particleRGB = '194, 166, 51';
+var particleLineAlpha = 0.06;
+
+function readParticleColors() {
+  var style = getComputedStyle(document.documentElement);
+  particleRGB = style.getPropertyValue('--particle-color').trim();
+  var lineVal = style.getPropertyValue('--particle-line').trim();
+  particleLineAlpha = parseFloat(lineVal) || 0.06;
+}
+
+(function initParticles() {
+  var canvas = document.getElementById('particleCanvas');
+  var ctx = canvas.getContext('2d');
+  var w, h, particles = [];
+  var PARTICLE_COUNT = 45;
+
+  function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (var i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * w, y: Math.random() * h,
+      r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.4 + 0.1
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, Math.max(0.1, p.r), 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + particleRGB + ',' + p.alpha + ')';
+      ctx.fill();
+    }
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var dx = particles[i].x - particles[j].x;
+        var dy = particles[i].y - particles[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = 'rgba(' + particleRGB + ',' + (particleLineAlpha * (1 - dist / 120)) + ')';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ==========================================
+   TOGGLE MODE
+   ========================================== */
+var themeToggle = document.getElementById('themeToggle');
+var isLightMode = false;
+
+function applyTheme(light) {
+  isLightMode = light;
+  var root = document.documentElement;
+  if (light) {
+    root.classList.add('light');
+    themeToggle.classList.add('light');
+    themeToggle.setAttribute('aria-checked', 'true');
+  } else {
+    root.classList.remove('light');
+    themeToggle.classList.remove('light');
+    themeToggle.setAttribute('aria-checked', 'false');
+  }
+  requestAnimationFrame(function() { readParticleColors(); });
+  localStorage.setItem('cryptoTheme', light ? 'light' : 'dark');
+}
+
+themeToggle.addEventListener('click', function() { applyTheme(!isLightMode); });
+themeToggle.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); applyTheme(!isLightMode); }
+});
+
+(function initTheme() {
+  var saved = localStorage.getItem('cryptoTheme');
+  if (saved === 'light') { applyTheme(true); }
+  else {
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    if (!prefersDark.matches && saved === null) { applyTheme(true); }
+    else { applyTheme(false); }
+  }
+})();
+
+/* ==========================================
+   TOAST
+   ========================================== */
+function showToast(message, type) {
+  type = type || 'info';
+  var container = document.getElementById('toastContainer');
+  var icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<i class="fa-solid ' + (icons[type] || icons.info) + '"></i> ' + message;
+  container.appendChild(toast);
+  setTimeout(function() {
+    toast.classList.add('out');
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 2800);
+}
+
+/* ==========================================
+   FORMAT
+   ========================================== */
+function fmt(n) { return "Rp " + Number(n).toLocaleString("id-ID"); }
+function formatTanggal(tglStr) {
+  try { return new Date(tglStr).toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' }); }
+  catch(e) { return tglStr; }
+}
+
+/* ==========================================
+   STATE
+   ========================================== */
+var buyTbody = document.getElementById('buyTbody');
+var emptyState = document.getElementById('emptyState');
+var paginationArea = document.getElementById('paginationArea');
+var currentPage = 1;
+var rowsPerPage = 5;
+
+/* ==========================================
+   TAMBAH DATA
+   ========================================== */
+function tambahData() {
+  var tgl = document.getElementById("tglBeli").value;
+  var harga = parseFloat(document.getElementById("hargaBeli").value);
+  var total = parseFloat(document.getElementById("totalBeli").value);
+  var coinName = document.getElementById("coinName").value.trim();
+
+  if (!tgl) { showToast("Tanggal beli wajib diisi.", "error"); return; }
+  if (isNaN(harga) || harga <= 0) { showToast("Harga beli harus lebih dari 0.", "error"); return; }
+  if (isNaN(total) || total <= 0) { showToast("Total harga beli harus lebih dari 0.", "error"); return; }
+  if (!coinName) { showToast("Nama coin wajib diisi.", "error"); return; }
+
+  var jumlah = total / harga;
+  
+  // Simpan langsung ke Firebase, listener onSnapshot akan render ulang UI
+  var currentData = buildSaveData();
+  currentData.buy.push({
+    tgl: formatTanggal(tgl),
+    tglRaw: tgl,
+    harga: harga,
+    total: total,
+    jumlah: jumlah,
+    lock: false
+  });
+  currentData.lastUpdate = new Date().toLocaleString('id-ID');
+  
+  saveToFirebase(currentData);
+
+  document.getElementById("tglBeli").value = "";
+  document.getElementById("hargaBeli").value = "";
+  document.getElementById("totalBeli").value = "";
+  showToast("Berhasil menambahkan data " + coinName, "success");
+}
+
+/* ==========================================
+   PAGINATION
+   ========================================== */
+function showPage(page) {
+  var rows = buyTbody.querySelectorAll("tr");
+  var totalPages = Math.max(1, Math.ceil(rows.length / rowsPerPage));
+  if (page < 1) page = 1; if (page > totalPages) page = totalPages;
+  currentPage = page;
+  rows.forEach(function(r, i) {
+    r.style.display = (i >= (page-1)*rowsPerPage && i < page*rowsPerPage) ? '' : 'none';
+  });
+  document.getElementById("pageInfo").textContent = rows.length > 0 ? currentPage + " / " + totalPages : "0 / 0";
+  document.getElementById("prevBtn").disabled = currentPage <= 1;
+  document.getElementById("nextBtn").disabled = currentPage >= totalPages;
+}
+function nextPage() { showPage(currentPage + 1); }
+function prevPage() { showPage(currentPage - 1); }
+
+function updateVisibility() {
+  var rowCount = buyTbody.querySelectorAll("tr").length;
+  emptyState.style.display = rowCount === 0 ? '' : 'none';
+  paginationArea.style.display = rowCount > rowsPerPage ? '' : 'none';
+  showPage(currentPage);
+}
+
+function renumberRows() {
+  Array.from(buyTbody.querySelectorAll("tr")).forEach(function(r, i) { r.children[0].textContent = i + 1; });
+}
+
+/* ==========================================
+   HITUNG ULANG + BADGE UNTUNG/RUGI
+   ========================================== */
+function recalcAll() {
+  var rows = Array.from(buyTbody.querySelectorAll("tr"));
+  var totalModal = 0, totalQty = 0;
+  rows.forEach(function(r) {
+    totalModal += parseFloat(r.dataset.total) || 0;
+    totalQty += parseFloat(r.dataset.jumlah) || 0;
+  });
+  var avg = totalQty > 0 ? totalModal / totalQty : 0;
+  document.getElementById("totalModal").textContent = fmt(totalModal);
+  document.getElementById("totalQtyBuy").textContent = totalQty.toFixed(8);
+  document.getElementById("avgBuyPrice").textContent = fmt(avg);
+
+  var manual = parseFloat(document.getElementById("manualInput").value) || 0;
+  var profit = (totalQty * manual) - totalModal;
+  var pct = totalModal > 0 ? (profit / totalModal * 100) : 0;
+
+  var profitEl = document.getElementById("profitLoss");
+  var pctEl = document.getElementById("profitPct");
+  var profitCard = document.getElementById("profitCard");
+  var statusBadge = document.getElementById("statusBadge");
+  var statusText = document.getElementById("statusText");
+  var badgeIcon = statusBadge.querySelector("i");
+
+  profitEl.textContent = (profit >= 0 ? "+" : "") + fmt(profit);
+  pctEl.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+
+  if (totalQty > 0 && manual > 0) {
+    if (profit >= 0) {
+      profitEl.style.color = "var(--green)";
+      pctEl.style.color = "var(--green)";
+      profitCard.className = "stat-card fade-up profit-card";
+      statusBadge.className = "status-badge profit";
+      badgeIcon.className = "fa-solid fa-arrow-up";
+      statusText.textContent = "UNTUNG";
+    } else {
+      profitEl.style.color = "var(--red)";
+      pctEl.style.color = "var(--red)";
+      profitCard.className = "stat-card fade-up loss-card";
+      statusBadge.className = "status-badge loss";
+      badgeIcon.className = "fa-solid fa-arrow-down";
+      statusText.textContent = "RUGI";
+    }
+  } else {
+    profitEl.style.color = "var(--fg)";
+    pctEl.style.color = "var(--fg-muted)";
+    profitCard.className = "stat-card fade-up";
+    statusBadge.className = "status-badge neutral";
+    badgeIcon.className = "fa-solid fa-minus";
+    statusText.textContent = "MENUNGGU";
+  }
+
+  var runningTotal = totalModal + profit;
+  var runningEl = document.getElementById("runningTotal");
+  var runningSubEl = document.getElementById("runningSub");
+  var runningCard = document.getElementById("runningCard");
+  var runningIcon = runningCard.querySelector(".running-icon i");
+
+  runningEl.textContent = (runningTotal >= 0 ? "" : "-") + fmt(Math.abs(runningTotal));
+
+  if (totalQty > 0 && manual > 0) {
+    if (profit >= 0) {
+      runningEl.style.color = "var(--green)";
+      runningSubEl.textContent = "Naik " + pct.toFixed(2) + "% dari modal";
+      runningSubEl.style.color = "var(--green)";
+      runningIcon.className = "fa-solid fa-arrow-trend-up";
+      runningIcon.style.color = "var(--green)";
+    } else {
+      runningEl.style.color = "var(--red)";
+      runningSubEl.textContent = "Turun " + Math.abs(pct).toFixed(2) + "% dari modal";
+      runningSubEl.style.color = "var(--red)";
+      runningIcon.className = "fa-solid fa-arrow-trend-down";
+      runningIcon.style.color = "var(--red)";
+    }
+  } else {
+    runningEl.style.color = "var(--accent)";
+    runningSubEl.textContent = "Modal + Untung/Rugi";
+    runningSubEl.style.color = "var(--fg-muted)";
+    runningIcon.className = "fa-solid fa-arrow-trend-up";
+    runningIcon.style.color = "var(--accent)";
+  }
+}
+
+// Saat manual input berubah, simpan ke firebase
+document.getElementById("manualInput").addEventListener("input", function() {
+  recalcAll();
+  autoSave();
+});
+
+document.getElementById("coinName").addEventListener("input", function(e) {
+  document.getElementById("unitLbl").textContent = e.target.value.trim() || "DOGE";
+  autoSave();
+});
+
+/* ==========================================
+   SAVE / LOAD (FIREBASE INTEGRATION)
+   ========================================== */
+function buildSaveData() {
+  return {
+    coinName: document.getElementById("coinName").value,
+    buy: Array.from(buyTbody.querySelectorAll("tr")).map(function(r) {
+      return {
+        tgl: r.children[1].textContent,
+        harga: parseFloat(r.dataset.harga),
+        total: parseFloat(r.dataset.total),
+        jumlah: parseFloat(r.dataset.jumlah),
+        lock: r.querySelector(".lock-toggle").classList.contains("locked")
+      };
+    }),
+    manualInput: parseFloat(document.getElementById("manualInput").value) || 0
+  };
+}
+
+var saveTimer = null;
+function autoSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function() {
+    var data = buildSaveData();
+    data.lastUpdate = new Date().toLocaleString('id-ID');
+    saveToFirebase(data);
+  }, 800);
+}
+
+function saveToFirebase(data) {
+  if (window.docRef && window.setDoc) {
+    window.setDoc(window.docRef, data).then(() => {
+      document.getElementById("syncBadge").style.display = "inline";
+      setTimeout(() => document.getElementById("syncBadge").style.display = "none", 2000);
+    }).catch(err => {
+      console.error("Gagal simpan ke Firebase:", err);
+      // Fallback ke local jika gagal
+      localStorage.setItem("cryptoData", JSON.stringify(data));
+    });
+  } else {
+    // Fallback jika Firebase belum load
+    localStorage.setItem("cryptoData", JSON.stringify(data));
+  }
+}
+
+// Dipanggil oleh Firebase Module saat selesai loading
+window.initFirebaseSync = function() {
+  if (!window.onSnapshot || !window.docRef) return;
+
+  // Listener Realtime dari Firestore
+  window.onSnapshot(window.docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      var saved = docSnap.data();
+      renderData(saved);
+    } else {
+      // Coba load dari local jika database kosong
+      var localData = localStorage.getItem("cryptoData");
+      if (localData) {
+        renderData(JSON.parse(localData));
+      }
+    }
+  });
+};
+
+// Fallback load dari localStorage saat pertama kali (sebelum Firebase siap)
+window.addEventListener("load", function() {
+  setTimeout(function() {
+    // Jika dalam 2 detik firebase belum render, pakai local
+    if (buyTbody.querySelectorAll("tr").length === 0) {
+      var localData = localStorage.getItem("cryptoData");
+      if (localData) renderData(JSON.parse(localData));
+    }
+  }, 2000);
+});
+
+function renderData(saved) {
+  if (!saved) return;
+  
+  buyTbody.innerHTML = ""; // Kosongkan dulu
+  document.getElementById("coinName").value = saved.coinName || "DOGE";
+  document.getElementById("manualInput").value = saved.manualInput || 0;
+  document.getElementById("unitLbl").textContent = saved.coinName || "DOGE";
+
+  if (saved.buy && saved.buy.length) {
+    saved.buy.forEach(function(d) {
+      var tr = document.createElement("tr");
+      tr.className = "row-enter";
+      tr.dataset.harga = d.harga; 
+      tr.dataset.total = d.total; 
+      tr.dataset.jumlah = d.jumlah;
+      var lockClass = d.lock ? "lock-toggle locked" : "lock-toggle unlocked";
+      var lockIcon = d.lock ? 'fa-lock' : 'fa-lock-open';
+      var lockTitle = d.lock ? 'Buka kunci' : 'Kunci baris';
+      
+      tr.innerHTML =
+        '<td></td><td class="td-date">' + d.tgl + '</td>' +
+        '<td>' + fmt(d.harga) + '</td><td>' + fmt(d.total) + '</td>' +
+        '<td>' + d.jumlah.toFixed(8) + '</td>' +
+        '<td style="display:flex;gap:8px;justify-content:center;align-items:center;">' +
+          '<span class="' + lockClass + '" title="' + lockTitle + '" role="button" tabindex="0"><i class="fa-solid ' + lockIcon + '"></i></span>' +
+          '<button class="del-btn" title="Hapus baris"><i class="fa-solid fa-trash-can"></i></button>' +
+        '</td>';
+
+      var isLocked = !!d.lock;
+      var lockEl = tr.querySelector(".lock-toggle");
+      
+      lockEl.addEventListener("click", function() {
+        isLocked = !isLocked;
+        this.className = isLocked ? "lock-toggle locked" : "lock-toggle unlocked";
+        this.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>';
+        this.title = isLocked ? "Buka kunci" : "Kunci baris";
+        autoSave();
+      });
+      
+      lockEl.addEventListener("keydown", function(e) { 
+        if(e.key==="Enter"||e.key===" "){e.preventDefault();lockEl.click();} 
+      });
+
+      tr.querySelector(".del-btn").addEventListener("click", function() {
+        if (isLocked) { showToast("Baris ini terkunci!", "error"); return; }
+        tr.style.transition = "opacity 0.25s, transform 0.25s";
+        tr.style.opacity = "0"; tr.style.transform = "translateX(20px)";
+        setTimeout(function() { 
+          tr.remove(); 
+          renumberRows(); 
+          recalcAll(); 
+          updateVisibility(); 
+          autoSave(); 
+        }, 250);
+      });
+      
+      buyTbody.appendChild(tr);
+    });
+  }
+  
+  if (saved.lastUpdate) document.getElementById("lastUpdate").textContent = saved.lastUpdate;
+  renumberRows(); recalcAll(); updateVisibility();
+}
+
+/* ==========================================
+   EXCEL
+   ========================================== */
+function downloadExcel() {
+  var rows = Array.from(buyTbody.querySelectorAll("tr"));
+  if (rows.length === 0) { showToast("Tidak ada data untuk diunduh.", "error"); return; }
+  var coinName = document.getElementById("coinName").value || "DOGE";
+  var columns = ["No", "Tanggal Beli", "Harga Saat Beli", "Total Harga Beli", "Jumlah Beli"];
+  var dataRows = rows.map(function(r, i) {
+    return [i+1, r.children[1].textContent, r.children[2].textContent.replace(/[^\d\-,.]/g,''), r.children[3].textContent.replace(/[^\d\-,.]/g,''), r.children[4].textContent];
+  });
+  var wsData = [["Data Pembelian " + coinName], [], columns].concat(dataRows).concat([
+    [],
+    ["Total Jumlah Beli", document.getElementById("totalQtyBuy").textContent],
+    ["Total Modal", document.getElementById("totalModal").textContent],
+    ["Harga Rata-Rata", document.getElementById("avgBuyPrice").textContent],
+    ["Status", document.getElementById("statusText").textContent],
+    ["Untung / Rugi", document.getElementById("profitLoss").textContent],
+    ["Total Harga Berjalan", document.getElementById("runningTotal").textContent],
+    [],
+    ["Terakhir Update", document.getElementById("lastUpdate").textContent]
+  ]);
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [{wch:5},{wch:28},{wch:22},{wch:22},{wch:16}];
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Pembelian");
+  XLSX.writeFile(wb, "data_" + coinName.toLowerCase() + "_" + Date.now() + ".xlsx");
+  showToast("File Excel berhasil diunduh!", "success");
+}
+
+/* ==========================================
+   KEYBOARD
+   ========================================== */
+document.querySelectorAll('.form-bar .input-field').forEach(function(input) {
+  input.addEventListener('keydown', function(e) { if(e.key==='Enter'){e.preventDefault();tambahData();} });
+});
+</script>
+</body>
+</html>
