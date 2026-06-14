@@ -60,8 +60,6 @@
   .btn:active { transform: translateY(0); }
   .btn.primary { background: var(--accent); color:#000; border-color: var(--accent); }
   .btn.primary:hover { filter: brightness(1.15); box-shadow: 0 4px 20px var(--accent-glow); }
-  .btn.firebase { background: #ff9800; color:#000; border-color: #ff9800; }
-  .btn.firebase:hover { filter: brightness(1.15); box-shadow: 0 4px 20px rgba(255,152,0,0.3); }
   .input-field { padding: 9px 14px; border-radius: 10px; font-family: inherit; font-size: 13px; border: 1px solid var(--border); background: var(--input-bg); color: var(--fg); transition: border-color 0.25s, box-shadow 0.25s, background 0.5s, color 0.5s; outline: none; width: 100%; }
   .input-field::placeholder { color: var(--fg-muted); } .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor:pointer; } :root.light input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
@@ -143,7 +141,7 @@
     </div>
     <div class="header-text">
       <h1>Kalkulasi Pembelian DOGE</h1>
-      <p class="subtitle">Portfolio tracker & profit/loss calculator (Firebase)</p>
+      <p class="subtitle">Portfolio tracker & profit/loss calculator (Auto-Save Cloud)</p>
     </div>
     <div class="header-actions">
       <div class="theme-toggle" id="themeToggle" role="switch" tabindex="0" aria-checked="false" aria-label="Ganti mode terang atau gelap">
@@ -153,8 +151,6 @@
         </span>
       </div>
       <button class="btn" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
-      <!-- Tombol Simpan ke Firebase -->
-      <button class="btn firebase" id="saveBtn"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan Cloud</button>
     </div>
   </header>
 
@@ -391,17 +387,19 @@ function tambahData() {
     isLocked = !isLocked; this.className = isLocked ? "lock-toggle locked" : "lock-toggle unlocked";
     this.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>';
     this.title = isLocked ? "Buka kunci" : "Kunci baris";
+    autoSaveCloud(); // Auto-save saat kunci berubah
   });
   lockEl.addEventListener("keydown", function(e) { if(e.key==="Enter"||e.key===" "){e.preventDefault();lockEl.click();} });
   tr.querySelector(".del-btn").addEventListener("click", function() {
     if (isLocked) { showToast("Baris ini terkunci! Buka kunci dulu.", "error"); return; }
     tr.style.transition = "opacity 0.25s, transform 0.25s"; tr.style.opacity = "0"; tr.style.transform = "translateX(20px)";
-    setTimeout(function() { tr.remove(); renumberRows(); recalcAll(); updateVisibility(); }, 250);
+    setTimeout(function() { tr.remove(); renumberRows(); recalcAll(); updateVisibility(); autoSaveCloud(); }, 250); // Auto-save saat hapus
   });
   buyTbody.appendChild(tr); renumberRows(); recalcAll(); updateVisibility();
   document.getElementById("tglBeli").value = ""; document.getElementById("hargaBeli").value = ""; document.getElementById("totalBeli").value = "";
-  showToast("Berhasil menambahkan data " + coinName + " (Klik Simpan Cloud)", "success");
+  showToast("Berhasil menambahkan data " + coinName, "success");
   showPage(currentPage);
+  autoSaveCloud(); // Auto-save saat tambah data
 }
 
 /* ==========================================
@@ -445,12 +443,23 @@ function recalcAll() {
     else { runningEl.style.color = "var(--red)"; runningSubEl.textContent = "Turun " + Math.abs(pct).toFixed(2) + "% dari modal"; runningSubEl.style.color = "var(--red)"; runningIcon.className = "fa-solid fa-arrow-trend-down"; runningIcon.style.color = "var(--red)"; }
   } else { runningEl.style.color = "var(--accent)"; runningSubEl.textContent = "Modal + Untung/Rugi"; runningSubEl.style.color = "var(--fg-muted)"; runningIcon.className = "fa-solid fa-arrow-trend-up"; runningIcon.style.color = "var(--accent)"; }
 }
-document.getElementById("manualInput").addEventListener("input", recalcAll);
-document.getElementById("coinName").addEventListener("input", function(e) { document.getElementById("unitLbl").textContent = e.target.value.trim() || "DOGE"; });
+
+// Input Harga Saat Ini
+document.getElementById("manualInput").addEventListener("input", function() {
+  recalcAll();
+  autoSaveCloud(); // Auto-save saat harga manual berubah
+});
+
+document.getElementById("coinName").addEventListener("input", function(e) { 
+  document.getElementById("unitLbl").textContent = e.target.value.trim() || "DOGE"; 
+  autoSaveCloud(); // Auto-save saat nama coin berubah
+});
 
 /* ==========================================
-   SAVE / LOAD FIRESTORE
+   AUTO-SAVE KE FIREBASE
    ========================================== */
+var autoSaveTimer = null;
+
 function buildSaveData() {
   return {
     coinName: document.getElementById("coinName").value,
@@ -462,22 +471,24 @@ function buildSaveData() {
   };
 }
 
-// Menyimpan Data ke Firebase
-document.getElementById("saveBtn").addEventListener("click", function() {
-  var data = buildSaveData();
-  docRef.set(data)
-    .then(function() {
-      document.getElementById("lastUpdate").textContent = data.lastUpdate;
-      showToast("Data berhasil disimpan ke Cloud Firebase!", "success");
-    })
-    .catch(function(error) {
-      console.error("Error saving: ", error);
-      showToast("Gagal menyimpan ke Cloud.", "error");
-    });
-});
+function autoSaveCloud() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(function() {
+    var data = buildSaveData();
+    docRef.set(data)
+      .then(function() {
+        document.getElementById("lastUpdate").textContent = data.lastUpdate;
+      })
+      .catch(function(error) {
+        console.error("Error auto-saving: ", error);
+      });
+  }, 800); // Delay 800ms untuk menghindari spam write ke Firebase saat mengetik cepat
+}
 
-// Memuat Data dari Firebase
-function loadDataFromFirebase() {
+/* ==========================================
+   LOAD DATA DARI FIREBASE
+   ========================================== */
+function loadDataFromCloud() {
   docRef.get().then(function(doc) {
     if (doc.exists) {
       var saved = doc.data();
@@ -490,59 +501,26 @@ function loadDataFromFirebase() {
           var lockClass = d.lock ? "lock-toggle locked" : "lock-toggle unlocked"; var lockIcon = d.lock ? 'fa-lock' : 'fa-lock-open'; var lockTitle = d.lock ? 'Buka kunci' : 'Kunci baris';
           tr.innerHTML = '<td></td><td class="td-date">' + d.tgl + '</td><td>' + fmt(d.harga) + '</td><td>' + fmt(d.total) + '</td><td>' + d.jumlah.toFixed(8) + '</td><td style="display:flex;gap:8px;justify-content:center;align-items:center;"><span class="' + lockClass + '" title="' + lockTitle + '" role="button" tabindex="0"><i class="fa-solid ' + lockIcon + '"></i></span><button class="del-btn" title="Hapus baris"><i class="fa-solid fa-trash-can"></i></button></td>';
           var isLocked = !!d.lock; var lockEl = tr.querySelector(".lock-toggle");
-          lockEl.addEventListener("click", function() { isLocked = !isLocked; this.className = isLocked ? "lock-toggle locked" : "lock-toggle unlocked"; this.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>'; this.title = isLocked ? "Buka kunci" : "Kunci baris"; });
+          lockEl.addEventListener("click", function() { isLocked = !isLocked; this.className = isLocked ? "lock-toggle locked" : "lock-toggle unlocked"; this.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>'; this.title = isLocked ? "Buka kunci" : "Kunci baris"; autoSaveCloud(); });
           lockEl.addEventListener("keydown", function(e) { if(e.key==="Enter"||e.key===" "){e.preventDefault();lockEl.click();} });
           tr.querySelector(".del-btn").addEventListener("click", function() {
             if (isLocked) { showToast("Baris ini terkunci!", "error"); return; }
             tr.style.transition = "opacity 0.25s, transform 0.25s"; tr.style.opacity = "0"; tr.style.transform = "translateX(20px)";
-            setTimeout(function() { tr.remove(); renumberRows(); recalcAll(); updateVisibility(); }, 250);
+            setTimeout(function() { tr.remove(); renumberRows(); recalcAll(); updateVisibility(); autoSaveCloud(); }, 250);
           });
           buyTbody.appendChild(tr);
         });
       }
       if (saved.lastUpdate) document.getElementById("lastUpdate").textContent = saved.lastUpdate;
       renumberRows(); recalcAll(); updateVisibility();
-      showToast("Data berhasil dimuat dari Cloud.", "info");
-    } else {
-      // Fallback ke lokal jika tidak ada data cloud
-      loadDataFromLocal();
     }
   }).catch(function(error) {
     console.error("Error getting document:", error);
-    showToast("Gagal memuat dari Cloud, memuat dari lokal.", "error");
-    loadDataFromLocal();
+    showToast("Gagal memuat data dari Cloud.", "error");
   });
 }
 
-// Fallback Local Storage
-function loadDataFromLocal() {
-  try {
-    var saved = JSON.parse(localStorage.getItem("cryptoData"));
-    if (!saved) return;
-    document.getElementById("coinName").value = saved.coinName || "DOGE";
-    document.getElementById("manualInput").value = saved.manualInput || 0;
-    if (saved.buy && saved.buy.length) {
-      saved.buy.forEach(function(d) {
-        var tr = document.createElement("tr"); tr.dataset.harga = d.harga; tr.dataset.total = d.total; tr.dataset.jumlah = d.jumlah;
-        var lockClass = d.lock ? "lock-toggle locked" : "lock-toggle unlocked"; var lockIcon = d.lock ? 'fa-lock' : 'fa-lock-open'; var lockTitle = d.lock ? 'Buka kunci' : 'Kunci baris';
-        tr.innerHTML = '<td></td><td class="td-date">' + d.tgl + '</td><td>' + fmt(d.harga) + '</td><td>' + fmt(d.total) + '</td><td>' + d.jumlah.toFixed(8) + '</td><td style="display:flex;gap:8px;justify-content:center;align-items:center;"><span class="' + lockClass + '" title="' + lockTitle + '" role="button" tabindex="0"><i class="fa-solid ' + lockIcon + '"></i></span><button class="del-btn" title="Hapus baris"><i class="fa-solid fa-trash-can"></i></button></td>';
-        var isLocked = !!d.lock; var lockEl = tr.querySelector(".lock-toggle");
-        lockEl.addEventListener("click", function() { isLocked = !isLocked; this.className = isLocked ? "lock-toggle locked" : "lock-toggle unlocked"; this.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>'; this.title = isLocked ? "Buka kunci" : "Kunci baris"; });
-        lockEl.addEventListener("keydown", function(e) { if(e.key==="Enter"||e.key===" "){e.preventDefault();lockEl.click();} });
-        tr.querySelector(".del-btn").addEventListener("click", function() {
-          if (isLocked) { showToast("Baris ini terkunci!", "error"); return; }
-          tr.style.transition = "opacity 0.25s, transform 0.25s"; tr.style.opacity = "0"; tr.style.transform = "translateX(20px)";
-          setTimeout(function() { tr.remove(); renumberRows(); recalcAll(); updateVisibility(); }, 250);
-        });
-        buyTbody.appendChild(tr);
-      });
-    }
-    if (saved.lastUpdate) document.getElementById("lastUpdate").textContent = saved.lastUpdate;
-    renumberRows(); recalcAll(); updateVisibility();
-  } catch(e) { console.error("Gagal memuat data lokal:", e); }
-}
-
-window.addEventListener("load", loadDataFromFirebase);
+window.addEventListener("load", loadDataFromCloud);
 
 /* ==========================================
    EXCEL
